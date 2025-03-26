@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Formulario de Captación{% endblock %}
+
+{% block content %}
+    <h1>Nuevo Formulario de Captación para la propiedad:{{ propiedad }}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {{ form.as_p }}
+        <h3>Detalles Generales</h3>
+        {{ form2.as_p }}
+        <h3>Detalles Interiores</h3>
+        {{ form3.as_p }}
+        <h3>Detalles Generales</h3>
+        {{ form4.as_p }}
+        {% csrf_token %}
+        <p><input type="submit" value="Guardar Formulario"></p>
+    </form>
+{% endblock %}

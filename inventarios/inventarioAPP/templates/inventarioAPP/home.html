@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - APP Inventario{% endblock %}
+
+{% block content %}
+    <h1>Inicio - APP Inventario</h1>
+    <ul>
+        <li>
+          <a href="{% url "inventarioAPP:lista_clientes" %}">Ver Clientes</a>
+        </li>
+        <li>
+          <a href="{% url "inventarioAPP:lista_propiedades" %}">Ver Propiedades</a>
+        </li>
+        <li>
+          <a href="#">People</a>
+        </li>
+      </ul>
+{% endblock %}

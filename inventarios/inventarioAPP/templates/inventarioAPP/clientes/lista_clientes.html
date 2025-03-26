@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Clientes{% endblock %}
+
+{% block content %}
+  <h1>Lista de Clientes</h1>
+  {% if clientes %}
+    <table>
+        {% for cliente in clientes %}
+            <tr>
+                <th>
+                    <a href="{% url 'inventarioAPP:detalle_cliente' cliente.id %}">{{ cliente.nombre }}</a>
+                </th>
+                <th>
+                    {{ cliente.identificacion }}
+                </th>
+                <th>
+                    {{ cliente.direccion_correspondiencia }}
+                </th>
+                <th>
+                    {{ cliente.telefono }}
+                </th>
+                <th>
+                    {{ cliente.email }}
+                </th>
+                <th>
+                    <a href="{% url 'inventarioAPP:actualizar_cliente' cliente.id %}">Actualizar</a>
+                </th>
+                <th>
+                    <a href="{% url 'inventarioAPP:eliminar_cliente' cliente.id %}">Eliminar</a>
+                </th>
+            </tr>
+        {% endfor %}
+    </table>
+  {% else %}
+    <p>No hay clientes creados</p>
+  {% endif %}
+  <p><a href="{% url 'inventarioAPP:crear_cliente' %}">Crear un Cliente</a></p>
+{% endblock %}

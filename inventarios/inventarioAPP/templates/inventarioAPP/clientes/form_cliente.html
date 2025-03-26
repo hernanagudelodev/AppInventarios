@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{% if actualizar %}Actualizar{% else %}Crear{% endif %} Cliente{% endblock %}
+{% block content %}
+    {% if actualizar %}
+        <h1>Actualizar Cliente</h1>
+    {% else %}
+        <h1>Crear Cliente</h1>
+    {% endif %}
+        <form action="" method="post">
+            {% csrf_token %}
+            <table>
+                {{ form.as_p }}
+            </table>
+            {% if actualizar %}
+                <input type="submit" value="Actualizar Cliente">
+            {% else %}
+                <input type="submit" value="Crear Cliente">
+            {% endif %}
+        </form>
+    <a href="{% url 'inventarioAPP:lista_clientes' %}">Volver a la lista de Clientes</a>
+{% endblock %}

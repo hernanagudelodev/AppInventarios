@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle de Clientes{% endblock %}
+
+{% block content %}
+  <h1>Detalle de Cliente {{ cliente.nombre }}</h1>
+  {% if cliente %}
+    <div>
+        Nombre: {{ cliente.nombre }}</a>
+    </div>
+    <div>
+        Identificación: {{ cliente.identificacion }}
+    </div>
+    <div>
+        Dirección Correspondencia: {{ cliente.direccion_correspondiencia }}
+    </div>
+    <div>
+        Telefono: {{ cliente.telefono }}
+    </div>
+    <div>
+        Correo Electrónico: {{ cliente.email }}
+    </div>
+    <div>
+        <a href="{% url 'inventarioAPP:actualizar_cliente' cliente.id %}">Actualizar</a> 
+        <a href="{% url 'inventarioAPP:eliminar_cliente' cliente.id %}">Eliminar</a>
+    </div>
+  {% else %}
+    <p>No hay clientes creados</p>
+  {% endif %}
+  <p><a href="{% url 'inventarioAPP:lista_clientes' %}">Lista de Clientes</a></p>
+{% endblock %}
