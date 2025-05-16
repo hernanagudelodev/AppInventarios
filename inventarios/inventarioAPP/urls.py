@@ -15,4 +15,7 @@ urlpatterns = [
     path('propiedades/actualizar/<int:pk>/', views.ActualizarPropiedad.as_view(), name='actualizar_propiedad'),
     path('propiedades/detalle/<int:id>/', views.detalle_propiedad, name='detalle_propiedad'),
     path('propiedades/captacion/<int:id>/', views.Altnuevo_formulario_captacion, name='nueva_captacion'),
+    path('asistenteAI/estimador/', views.estimador_view ,name='estimador_m2'),
+    path('asistenteAI/api/get_regiones/', views.get_regiones, name='get_regiones'),
+    path('asistenteAI/api/get_ciudades/', views.get_ciudades, name='get_ciudades'),
 ]

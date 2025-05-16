@@ -4,10 +4,14 @@ from .models import Cliente,Propiedad,FormularioCaptacion,DetallePropiedad,Detal
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from .forms import CaptacionForm,detalleCaptacionForm,detallesGeneralesCaptacionForm,detallesExterioresCaptacionForm,detallesInterioresCaptacionForm
+from .forms import CaptacionForm,detalleCaptacionForm,detallesGeneralesCaptacionForm,detallesExterioresCaptacionForm,detallesInterioresCaptacionForm,EstimadorForm
 from datetime import datetime
 from django.contrib import messages
 from django.forms import formset_factory
+from .estimador import asistente_estimador_dinamico
+from django.http import JsonResponse
+from .wasi_api import obtener_regiones, obtener_ciudades, obtener_localidades, obtener_zonas
+
 
 @login_required
 def home(request):
@@ -331,3 +335,47 @@ def Altnuevo_formulario_captacion(request,id):
          'form4':det_exteriores_captacion_form
          }
     )
+
+'''
+Vista para estimar precio del metro cuadrado de una propiedad según varios filtros
+'''
+def estimador_view(request):
+    resultado = None
+    if request.method == 'POST':
+        form = EstimadorForm(request.POST)
+        if form.is_valid():
+            area = form.cleaned_data['area_objetivo']
+            city = form.cleaned_data['id_city']
+            zone = form.cleaned_data.get('id_zone')
+            location = form.cleaned_data.get('id_location')
+
+            resultado = asistente_estimador_dinamico(
+                area_objetivo=area,
+                id_company='TU_ID_COMPANY',
+                wasi_token='TU_TOKEN',
+                id_city=city,
+                id_location=location,
+                id_zone=zone
+            )
+        else:
+            # Si el form no es válido, lo volvemos a renderizar con los datos que tiene
+            form = EstimadorForm(request.POST)
+    else:
+        form = EstimadorForm()
+    return render(request,
+                   'inventarioAPP/asistenteAI/estimador_m2.html',
+                   {'form': form, 'resultado': resultado})
+
+
+def get_regiones(request):
+    if request.method == "GET":
+        id_country = request.GET.get("id_country")
+        regiones = obtener_regiones(id_country)
+        return JsonResponse({"regiones": regiones})
+
+def get_ciudades(request):
+    if request.method == "GET":
+        id_region = request.GET.get("id_region")
+        ciudades = obtener_ciudades(id_region)
+        return JsonResponse({"ciudades": ciudades})
+
