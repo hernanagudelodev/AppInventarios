@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventarioAPP', '0009_detallecaptacion'),
+        ('inventarioapp', '0009_detallecaptacion'),
     ]
 
     operations = [

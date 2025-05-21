@@ -4,8 +4,8 @@
 {% block title %}Nuevo Formulario de Captación{% endblock %}
 
 {% block content %}
-    <h1>Nuevo Formulario de Captación para la propiedad:{{ propiedad }}</h1>
-    <form method="post" enctype="multipart/form-data">
+    <h1>Nuevo Formulario de Captación para la propiedad: {{ propiedad }}</h1>
+    <form method="post" enctype="multipart/form-data" class="form-horizontal">
         {{ form|crispy }}
         <h3>Detalles Generales</h3>
         {{ form2|crispy }}

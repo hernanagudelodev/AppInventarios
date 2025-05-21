@@ -9,7 +9,7 @@
         {% for propiedad in propiedades %}
             <tr>
                 <th>
-                    <a href="{% url 'inventarioAPP:detalle_propiedad' propiedad.id %}">{{ propiedad.direccion }}</a>
+                    <a href="{% url 'inventarioapp:detalle_propiedad' propiedad.id %}">{{ propiedad.direccion }}</a>
                 </th>
                 <th>
                     {{ propiedad.ciudad }}
@@ -28,13 +28,18 @@
                     {% endfor %}
                 </th>
                 <th>
-                    <a href="{% url 'inventarioAPP:actualizar_propiedad' propiedad.id %}">Actualizar</a>
+                    <a href="{% url 'inventarioapp:actualizar_propiedad' propiedad.id %}">Actualizar</a>
                 </th>
                 <th>
                     <a href="#">Eliminar</a>
                 </th>
                 <th>
-                    <a href="{% url 'inventarioAPP:nueva_captacion' propiedad.id %}">Nueva Captacion</a>
+                    <a href="{% url 'inventarioapp:nueva_captacion' propiedad.id %}">Nueva Captacion</a>
+                </th>
+                <th>
+                    <a href="{% url 'inventarioapp:formularios_entrega_propiedad' propiedad.id %}">
+                        Formularios de Entrega
+                    </a>
                 </th>
             </tr>
         {% endfor %}
@@ -42,5 +47,5 @@
   {% else %}
     <p>No hay propiedades creadas</p>
   {% endif %}
-  <p><a href="{% url 'inventarioAPP:crear_propiedad' %}">Crear una Propiedad</a></p>
+  <p><a href="{% url 'inventarioapp:crear_propiedad' %}">Crear una Propiedad</a></p>
 {% endblock %}

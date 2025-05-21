@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Entrega - Resumen{% endblock %}
+
+{% block content %}
+    <h2>Resumen del Formulario de Entrega</h2>
+    <p><strong>Propiedad:</strong> {{ entrega.propiedad_cliente.propiedad }}</p>
+    <p><strong>Cliente:</strong> {{ entrega.propiedad_cliente.cliente }}</p>
+    <p><strong>Fecha:</strong> {{ entrega.fecha_entrega }}</p>
+
+    {% for amb in ambientes %}
+        <hr>
+        <h3>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente }}</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Estado</th>
+                    <th>Cantidad</th>
+                    <th>Material</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in amb.items.all %}
+                <tr>
+                    <td>{{ item.nombre_item }}</td>
+                    <td>{{ item.get_estado_display }}</td>
+                    <td>{{ item.cantidad|default:"-" }}</td>
+                    <td>{{ item.material|default:"-" }}</td>
+                    <td>{{ item.observaciones|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+
+    <br>
+
+    {% if entrega.firma_cliente %}
+        <h4>Firma guardada:</h4>
+        <img src="{{ entrega.firma_cliente.url }}" width="300">
+        <br>
+    {% else %}
+        <form method="post" id="form-firma">
+            {% csrf_token %}
+            <canvas id="firma" width="300" height="150" style="border:1px solid #000;"></canvas>
+            <input type="hidden" name="firma_base64" id="firma_base64">
+            <br>
+            <button type="button" onclick="limpiarFirma()">Limpiar</button>
+            <button type="submit" onclick="guardarFirma()">Guardar Firma</button>
+        </form>
+    {% endif %}
+
+    {% if entrega.is_firmado %}
+        <p>Firmado el {{ entrega.fecha_firma }}</p>
+        <a href="{% url 'inventarioapp:ver_pdf_formulario_entrega' entrega.id %}" class="btn btn-outline-primary">Ver PDF</a>
+        <a href="{% url 'inventarioapp:enviar_formulario_pdf' entrega.id %}" class="btn btn-primary">Enviar al correo</a>
+    {% else %}
+        <a href="{% url 'inventarioapp:agregar_ambiente' entrega.id %}" class="btn btn-warning">Editar</a>
+    {% endif %}
+    
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script>
+        const canvas = document.getElementById('firma');
+        const firmaPad = new SignaturePad(canvas);
+
+        function limpiarFirma() {
+            firmaPad.clear();
+        }
+
+        function guardarFirma() {
+            if (firmaPad.isEmpty()) {
+                alert("¡Por favor firma antes de enviar!");
+                return false;
+            }
+            const firmaData = firmaPad.toDataURL();
+            document.getElementById('firma_base64').value = firmaData;
+            document.getElementById('form-firma').submit();
+        }
+    </script>
+
+
+{% endblock %}
