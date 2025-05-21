@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Entrega - Paso 2{% endblock %}
+
+{% block content %}
+    <h2>Entrega para {{ entrega.propiedad_cliente.propiedad }}</h2>
+    <h3>Agregar Ambiente</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Agregar</button>
+    </form>
+
+    <h3>Ambientes agregados:</h3>
+    <ul>
+        {% for amb in ambientes %}
+            <li>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente }} - 
+                <a href="{% url 'inventarioapp:editar_items_ambiente' amb.id %}">Editar Ítems</a>
+            </li>
+        {% empty %}
+            <li>Aún no se han agregado ambientes.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'inventarioapp:resumen_formulario_entrega' entrega.id %}">
+        Ver Resumen del Formulario
+    </a>
+
+{% endblock %}

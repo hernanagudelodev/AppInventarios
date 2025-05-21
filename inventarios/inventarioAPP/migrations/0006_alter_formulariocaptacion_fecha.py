@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventarioAPP', '0005_alter_formulariocaptacion_tipo_captacion'),
+        ('inventarioapp', '0005_alter_formulariocaptacion_tipo_captacion'),
     ]
 
     operations = [

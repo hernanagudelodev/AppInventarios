@@ -85,6 +85,45 @@
                         option.textContent = label;
                         ciudadSelect.appendChild(option);
                     });
+                    if (ciudadSelect.options.length > 0) {
+                        const selectedCity = ciudadSelect.options[0].value;
+                        const localidadSelect = document.getElementById("id_id_location");
+                        const zonaSelect = document.getElementById("id_id_zone");
+                        if (localidadSelect) localidadSelect.innerHTML = '';
+                        if (zonaSelect) zonaSelect.innerHTML = '';
+                        cargarLocalidades(selectedCity);
+                        cargarZonas(selectedCity);
+                    }
+                });
+        }
+
+        function cargarLocalidades(idCity) {
+            fetch(`/inventarioApp/asistenteAI/api/get_localidades/?id_city=${idCity}`)
+                .then(response => response.json())
+                .then(data => {
+                    const localidadSelect = document.getElementById("id_id_location");
+                    localidadSelect.innerHTML = '';
+                    data.localidades.forEach(([id, label]) => {
+                        const option = document.createElement("option");
+                        option.value = id;
+                        option.textContent = label;
+                        localidadSelect.appendChild(option);
+                    });
+                });
+        }
+
+        function cargarZonas(idCity) {
+            fetch(`/inventarioApp/asistenteAI/api/get_zonas/?id_city=${idCity}`)
+                .then(response => response.json())
+                .then(data => {
+                    const zonaSelect = document.getElementById("id_id_zone");
+                    zonaSelect.innerHTML = '';
+                    data.zonas.forEach(([id, label]) => {
+                        const option = document.createElement("option");
+                        option.value = id;
+                        option.textContent = label;
+                        zonaSelect.appendChild(option);
+                    });
                 });
         }
 
@@ -100,7 +139,15 @@
         }
         if (regionSelect) {
             regionSelect.addEventListener("change", function () {
-                cargarCiudades(regionSelect.value);
+                const regionId = this.value;
+                cargarCiudades(regionId);
+            });
+        }
+        if(ciudadSelect){
+            ciudadSelect.addEventListener("change", function () {
+                const cityId = this.value;
+                cargarLocalidades(cityId);
+                cargarZonas(cityId);
             });
         }
     });

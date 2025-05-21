@@ -9,7 +9,7 @@
         {% for cliente in clientes %}
             <tr>
                 <th>
-                    <a href="{% url 'inventarioAPP:detalle_cliente' cliente.id %}">{{ cliente.nombre }}</a>
+                    <a href="{% url 'inventarioapp:detalle_cliente' cliente.id %}">{{ cliente.nombre }}</a>
                 </th>
                 <th>
                     {{ cliente.identificacion }}
@@ -24,10 +24,10 @@
                     {{ cliente.email }}
                 </th>
                 <th>
-                    <a href="{% url 'inventarioAPP:actualizar_cliente' cliente.id %}">Actualizar</a>
+                    <a href="{% url 'inventarioapp:actualizar_cliente' cliente.id %}">Actualizar</a>
                 </th>
                 <th>
-                    <a href="{% url 'inventarioAPP:eliminar_cliente' cliente.id %}">Eliminar</a>
+                    <a href="{% url 'inventarioapp:eliminar_cliente' cliente.id %}">Eliminar</a>
                 </th>
             </tr>
         {% endfor %}
@@ -35,5 +35,5 @@
   {% else %}
     <p>No hay clientes creados</p>
   {% endif %}
-  <p><a href="{% url 'inventarioAPP:crear_cliente' %}">Crear un Cliente</a></p>
+  <p><a href="{% url 'inventarioapp:crear_cliente' %}">Crear un Cliente</a></p>
 {% endblock %}

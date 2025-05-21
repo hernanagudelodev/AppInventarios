@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Entrega - Paso 1{% endblock %}
+
+{% block content %}
+    <h2>Crear Entrega - Paso 1</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Crear y continuar</button>
+    </form>
+{% endblock %}

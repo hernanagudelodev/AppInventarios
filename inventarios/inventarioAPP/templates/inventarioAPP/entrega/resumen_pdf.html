@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario de Entrega - PDF{% endblock %}
+
+{% block content %}
+    <h2>Resumen del Formulario de Entrega</h2>
+    <p><strong>Propiedad:</strong> {{ entrega.propiedad_cliente.propiedad }}</p>
+    <p><strong>Cliente:</strong> {{ entrega.propiedad_cliente.cliente }}</p>
+    <p><strong>Fecha:</strong> {{ entrega.fecha_entrega }}</p>
+
+    {% for amb in ambientes %}
+        <hr>
+        <h3>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente }}</h3>
+        <table border="1" cellpadding="5" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Ítem</th>
+                    <th>Estado</th>
+                    <th>Cantidad</th>
+                    <th>Material</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in amb.items.all %}
+                <tr>
+                    <td>{{ item.nombre_item }}</td>
+                    <td>{{ item.get_estado_display }}</td>
+                    <td>{{ item.cantidad|default:"-" }}</td>
+                    <td>{{ item.material|default:"-" }}</td>
+                    <td>{{ item.observaciones|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+
+    <br>
+    <h4>Firma guardada:</h4>
+    <img src="{{ entrega.firma_cliente.url }}" width="300">
+    <p>Firmado el {{ entrega.fecha_firma }}</p>
+    <br>
+
+
+
+{% endblock %}
+

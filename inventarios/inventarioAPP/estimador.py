@@ -2,7 +2,7 @@ import requests
 
 # esta función se encarga de obtener lás propiedades de la API de wasi
 # retorna un json con los datos de las propiedaes según los filtros
-def obtener_propiedades(id_company, wasi_token, filtros_base):
+def obtener_propiedades(area_objetivo, id_company, wasi_token, filtros_base):
     url = "https://api.wasi.co/v1/property/search"
     payload = {
         "id_company": id_company,

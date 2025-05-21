@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventarioAPP', '0012_remove_altdetallesexteriores_alt_formulario_captacion_and_more'),
+        ('inventarioapp', '0012_remove_altdetallesexteriores_alt_formulario_captacion_and_more'),
     ]
 
     operations = [

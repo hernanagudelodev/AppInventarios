@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventarioAPP', '0008_remove_detallepropiedad_clase_propiedad_and_more'),
+        ('inventarioapp', '0008_remove_detallepropiedad_clase_propiedad_and_more'),
     ]
 
     operations = [

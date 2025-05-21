@@ -41,3 +41,32 @@ class AltDetallesInterioresAdmin(admin.ModelAdmin):
 @admin.register(AltDetallesGenerales)
 class AltDetallesGeneralesAdmin(admin.ModelAdmin):
     pass
+
+@admin.register(ItemBase)
+class ItemBaseAdmin(admin.ModelAdmin):
+    list_display = ('nombre_item', 'tipo_ambiente')
+    list_filter = ('tipo_ambiente',)
+    search_fields = ('nombre_item',)
+
+
+class ItemEntregaInline(admin.TabularInline):
+    model = ItemEntrega
+    extra = 0
+
+
+class AmbienteEntregaInline(admin.TabularInline):
+    model = AmbienteEntrega
+    extra = 0
+
+
+@admin.register(FormularioEntrega)
+class FormularioEntregaAdmin(admin.ModelAdmin):
+    list_display = ('propiedad_cliente', 'fecha_entrega', 'creado')
+    list_filter = ('propiedad_cliente__propiedad',)
+    inlines = [AmbienteEntregaInline]
+
+
+@admin.register(AmbienteEntrega)
+class AmbienteEntregaAdmin(admin.ModelAdmin):
+    list_display = ('formulario_entrega', 'tipo_ambiente', 'numero_ambiente')
+    inlines = [ItemEntregaInline]

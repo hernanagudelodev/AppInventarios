@@ -1,5 +1,6 @@
 from django import forms
-from .models import FormularioCaptacion,AltDetallesExteriores,AltDetallesGenerales,AltDetallesInteriores
+from django.forms import modelformset_factory
+from .models import *
 from django.forms.formsets import Form, BaseFormSet, formset_factory, ValidationError
 from .wasi_api import obtener_paises, obtener_regiones, obtener_ciudades, obtener_localidades, obtener_zonas
 
@@ -46,5 +47,41 @@ class EstimadorForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.fields['id_country'].choices = obtener_paises()
+
+        data = args[0] if args else {}
+
+        id_country = data.get('id_country')
+        if id_country:
+            self.fields['id_region'].choices = obtener_regiones(id_country)
+
+        id_region = data.get('id_region')
+        if id_region:
+            self.fields['id_city'].choices = obtener_ciudades(id_region)
+
+        id_city = data.get('id_city')
+        if id_city:
+            self.fields['id_location'].choices = obtener_localidades(id_city)
+            self.fields['id_zone'].choices = obtener_zonas(id_city)
+
+
+'''
+A partir de esta linea se hacen los forms para creación de formulario de entrega
+'''
+
+class SeleccionarPropiedadClienteForm(forms.ModelForm):
+    class Meta:
+        model = PropiedadCliente
+        fields = ['propiedad', 'cliente', 'relacion']
+
+class AmbienteEntregaForm(forms.ModelForm):
+    class Meta:
+        model = AmbienteEntrega
+        fields = ['tipo_ambiente', 'numero_ambiente', 'nombre_personalizado']
+
+
+ItemEntregaFormSet = modelformset_factory(
+    ItemEntrega,
+    fields=['nombre_item', 'estado', 'cantidad', 'material', 'observaciones'],
+    extra=0
+)
