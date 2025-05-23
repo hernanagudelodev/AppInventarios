@@ -3,23 +3,29 @@
 {% block title %}Formulario de Entrega - Paso 3{% endblock %}
 
 {% block content %}
+  <h2>Editar Ítems - {{ ambiente }}</h2>
 
-    <h2>Editar Ítems - {{ ambiente }}</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ formset.management_form }}
-        <table>
-            {% for form in formset %}
-            <tr>
-                {{ form.id }} 
-                {% for field in form.visible_fields %}
-                <td>{{ field.label_tag }} {{ field }}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-        </table>
-        <button type="submit">Guardar Ítems</button>    
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table>
+      {% for form in formset %}
+        <tr>
+          {{ form.id }}
+          {% for field in form.visible_fields %}
+            <td>{{ field.label_tag }} {{ field }}</td>
+          {% endfor %}
+          <td>
+            {% if form.instance.id %}
+              <a href="{% url 'inventarioapp:eliminar_item' form.instance.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
 
+    <button type="submit">Guardar Ítems</button>
+  </form>
 
+  <p><a href="{% url 'inventarioapp:agregar_ambiente' ambiente.formulario_entrega.id %}">Volver</a></p>
 {% endblock %}

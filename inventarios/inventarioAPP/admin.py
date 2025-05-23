@@ -22,25 +22,20 @@ class PropiedadAdmin(admin.ModelAdmin):
 class PropiedadClienteAdmin(admin.ModelAdmin):
     pass
 
-@admin.register(FormularioCaptacion)
-class FormularioCaptacionAdmin(admin.ModelAdmin):
-    pass
+class CampoCaptacionInline(admin.TabularInline):
+    model = CampoCaptacion
+    extra = 1
 
-@admin.register(DetallePropiedad)
-class DetallePropiedadAdmin(admin.ModelAdmin):
-    list_display = ('nombre','tipo_campo','tipo_detalle')
+@admin.register(SeccionCaptacion)
+class SeccionCaptacionAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'orden']
+    inlines = [CampoCaptacionInline]
 
-@admin.register(AltDetallesExteriores)
-class AltDetallesExterioresAdmin(admin.ModelAdmin):
-    pass
-
-@admin.register(AltDetallesInteriores)
-class AltDetallesInterioresAdmin(admin.ModelAdmin):
-    pass
-
-@admin.register(AltDetallesGenerales)
-class AltDetallesGeneralesAdmin(admin.ModelAdmin):
-    pass
+@admin.register(CampoCaptacion)
+class CampoCaptacionAdmin(admin.ModelAdmin):
+    list_display = ['nombre', 'seccion', 'tipo', 'obligatorio', 'orden']
+    list_filter = ['seccion', 'tipo']
+    search_fields = ['nombre']
 
 @admin.register(ItemBase)
 class ItemBaseAdmin(admin.ModelAdmin):
