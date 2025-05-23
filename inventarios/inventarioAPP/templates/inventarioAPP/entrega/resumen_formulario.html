@@ -55,7 +55,7 @@
     {% if entrega.is_firmado %}
         <p>Firmado el {{ entrega.fecha_firma }}</p>
         <a href="{% url 'inventarioapp:ver_pdf_formulario_entrega' entrega.id %}" class="btn btn-outline-primary">Ver PDF</a>
-        <a href="{% url 'inventarioapp:enviar_formulario_pdf' entrega.id %}" class="btn btn-primary">Enviar al correo</a>
+        <a href="{% url 'inventarioapp:confirmar_envio_correo' entrega.id %}" class="btn btn-primary">Enviar al correo</a>
     {% else %}
         <a href="{% url 'inventarioapp:agregar_ambiente' entrega.id %}" class="btn btn-warning">Editar</a>
     {% endif %}

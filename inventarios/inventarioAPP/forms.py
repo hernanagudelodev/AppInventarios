@@ -4,39 +4,41 @@ from .models import *
 from django.forms.formsets import Form, BaseFormSet, formset_factory, ValidationError
 from .wasi_api import obtener_paises, obtener_regiones, obtener_ciudades, obtener_localidades, obtener_zonas
 
-class CaptacionForm(forms.ModelForm):
-    # fecha = forms.DateTimeField(label='Fecha de Captación', widget=forms.DateTimeInput)
-    class Meta:
-        model = FormularioCaptacion
-        fields = ['fecha','tipo_captacion','valor_venta','valor_renta']
-        widgets = {
-            'fecha':forms.TextInput(attrs={'type':'datetime-local'}),
-        }
+# class CaptacionForm(forms.ModelForm):
+#     # fecha = forms.DateTimeField(label='Fecha de Captación', widget=forms.DateTimeInput)
+#     class Meta:
+#         model = FormularioCaptacion
+#         fields = ['fecha','tipo_captacion','valor_venta','valor_renta']
+#         widgets = {
+#             'fecha':forms.TextInput(attrs={'type':'datetime-local'}),
+#         }
 
-class detallesGeneralesCaptacionForm(forms.ModelForm):
-    class Meta:
-        model = AltDetallesGenerales
-        fields = '__all__'
-        exclude = ('formulario_captacion',)
+# class detallesGeneralesCaptacionForm(forms.ModelForm):
+#     class Meta:
+#         model = AltDetallesGenerales
+#         fields = '__all__'
+#         exclude = ('formulario_captacion',)
 
-class detallesExterioresCaptacionForm(forms.ModelForm):
-    class Meta:
-        model = AltDetallesExteriores
-        fields = '__all__'
-        exclude = ('formulario_captacion',)
+# class detallesExterioresCaptacionForm(forms.ModelForm):
+#     class Meta:
+#         model = AltDetallesExteriores
+#         fields = '__all__'
+#         exclude = ('formulario_captacion',)
 
-class detallesInterioresCaptacionForm(forms.ModelForm):
-    class Meta:
-        model = AltDetallesInteriores
-        fields = '__all__'
-        exclude = ('formulario_captacion',)
-
-
-class detalleCaptacionForm(forms.Form):
-    detalle = forms.CharField(max_length=100)
+# class detallesInterioresCaptacionForm(forms.ModelForm):
+#     class Meta:
+#         model = AltDetallesInteriores
+#         fields = '__all__'
+#         exclude = ('formulario_captacion',)
 
 
-# Clase form para el estimador de metros cuadrados, que eventualmente va a ser un Agente AI
+# class detalleCaptacionForm(forms.Form):
+#     detalle = forms.CharField(max_length=100)
+
+
+'''
+Clase form para el estimador de metros cuadrados, que eventualmente va a ser un Agente AI
+'''
 class EstimadorForm(forms.Form):
     area_objetivo = forms.FloatField(label='Área del inmueble (m²)', min_value=1)
     id_country = forms.ChoiceField(label='País', choices=[], required=True)
@@ -85,3 +87,35 @@ ItemEntregaFormSet = modelformset_factory(
     fields=['nombre_item', 'estado', 'cantidad', 'material', 'observaciones'],
     extra=0
 )
+
+
+'''
+ModelForm para hacer la creación del formulario de captación
+'''
+class FormularioCaptacionDinamico(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.secciones = []
+        secciones = SeccionCaptacion.objects.prefetch_related('campos').order_by('orden')
+        for seccion in secciones:
+            campos_lista = []
+            for campo in seccion.campos.all().order_by('orden'):
+                field_name = f'campo_{campo.id}'
+                campos_lista.append(field_name)
+                if campo.tipo == 'texto':
+                    self.fields[field_name] = forms.CharField(
+                        label=campo.nombre,
+                        required=campo.obligatorio
+                    )
+                elif campo.tipo == 'numero':
+                    self.fields[field_name] = forms.FloatField(
+                        label=campo.nombre,
+                        required=campo.obligatorio
+                    )
+                elif campo.tipo == 'booleano':
+                    self.fields[field_name] = forms.BooleanField(
+                        label=campo.nombre,
+                        required=False
+                    )
+            # Guardamos el nombre y los campos de la sección para el template
+            self.secciones.append({'nombre': seccion.nombre, 'campos': campos_lista})

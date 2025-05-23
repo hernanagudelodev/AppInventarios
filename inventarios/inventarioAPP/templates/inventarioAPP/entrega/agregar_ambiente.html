@@ -14,8 +14,10 @@
     <h3>Ambientes agregados:</h3>
     <ul>
         {% for amb in ambientes %}
-            <li>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente }} - 
-                <a href="{% url 'inventarioapp:editar_items_ambiente' amb.id %}">Editar Ítems</a>
+            <li>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente }} - {{ amb.nombre_personalizado }} - 
+                <a href="{% url 'inventarioapp:editar_items_ambiente' amb.id %}">Editar Ítems</a> - 
+                <a href="{% url 'inventarioapp:editar_ambiente' amb.id %}">Editar Ambiente</a> - 
+                <a href="{% url 'inventarioapp:eliminar_ambiente' amb.id %}">Eliminar Ambiente</a>
             </li>
         {% empty %}
             <li>Aún no se han agregado ambientes.</li>

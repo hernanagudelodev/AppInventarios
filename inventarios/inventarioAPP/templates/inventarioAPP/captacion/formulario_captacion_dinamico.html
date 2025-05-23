@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Captación para: {{ relacion.propiedad }} / {{ relacion.cliente }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {% for seccion in secciones_fields %}
+      <fieldset style="margin-bottom:2em;">
+        <legend style="font-weight:bold;">{{ seccion.nombre }}</legend>
+        {% for field in seccion.campos %}
+          <div style="margin-bottom:1em;">
+            {{ field.label_tag }}<br>
+            {{ field }}<br>
+            {% if field.errors %}
+              <span style="color:red;">{{ field.errors }}</span>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </fieldset>
+    {% endfor %}
+    <button type="submit">Guardar Captación</button>
+  </form>
+{% endblock %}

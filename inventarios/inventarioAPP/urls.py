@@ -14,7 +14,9 @@ urlpatterns = [
     path('propiedades/crear/', views.CrearPropiedad.as_view(),name='crear_propiedad'),
     path('propiedades/actualizar/<int:pk>/', views.ActualizarPropiedad.as_view(), name='actualizar_propiedad'),
     path('propiedades/detalle/<int:id>/', views.detalle_propiedad, name='detalle_propiedad'),
-    path('propiedades/captacion/<int:id>/', views.Altnuevo_formulario_captacion, name='nueva_captacion'),
+    # path('propiedades/captacion/<int:id>/', views.Altnuevo_formulario_captacion, name='nueva_captacion'), # Se borra por nuevo modelo de captación
+    path('propiedad/<int:propiedad_id>/captacion/', views.seleccionar_cliente_para_captacion, name='crear_captacion'),
+    path('captacion/nueva/<int:relacion_id>/', views.formulario_captacion_dinamico, name='formulario_captacion'),
     path('asistenteAI/estimador/', views.estimador_view ,name='estimador_m2'),
     path('asistenteAI/api/get_regiones/', views.get_regiones, name='get_regiones'),
     path('asistenteAI/api/get_ciudades/', views.get_ciudades, name='get_ciudades'),
@@ -27,6 +29,8 @@ urlpatterns = [
     path('entrega/<int:entrega_id>/enviar/', views.enviar_formulario_pdf, name='enviar_formulario_pdf'),
     path('entrega/<int:entrega_id>/ver-pdf/', views.ver_pdf_formulario_entrega, name='ver_pdf_formulario_entrega'),
     path('entrega/propiedad/<int:propiedad_id>/', views.formularios_entrega_propiedad, name='formularios_entrega_propiedad'),
-
-
+    path('entrega/ambiente/<int:ambiente_id>/editar/', views.editar_ambiente, name='editar_ambiente'),
+    path('entrega/ambiente/<int:ambiente_id>/eliminar/', views.eliminar_ambiente, name='eliminar_ambiente'),
+    path('entrega/item/<int:item_id>/eliminar/', views.eliminar_item, name='eliminar_item'),
+    path('entrega/<int:entrega_id>/confirmar-envio/', views.confirmar_envio_correo, name='confirmar_envio_correo'),
 ]

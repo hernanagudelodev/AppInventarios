@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Formulario de Captación - Seleccionar cliente{% endblock %}
+{% block content %}
+  <h2>Selecciona el cliente para la captación de {{ propiedad.direccion }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    <select name="relacion_id" required>
+      {% for rel in relaciones %}
+        <option value="{{ rel.id }}">
+          {{ rel.cliente }} ({{ rel.get_relacion_display }})
+        </option>
+      {% endfor %}
+    </select>
+    <button type="submit">Continuar</button>
+  </form>
+{% endblock %}
