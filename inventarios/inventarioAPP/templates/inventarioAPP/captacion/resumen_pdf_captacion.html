@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de Captación {{ captacion.id }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 32px; }
+        h1, h2, h3 { margin-bottom: 0.5em; }
+        .tabla-datos { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+        .tabla-datos th, .tabla-datos td { border: 1px solid #333; padding: 6px; }
+        .tabla-datos th { background: #eee; }
+        .firma { margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <h1>Formulario de Captación</h1>
+    <p><strong>ID Captación:</strong> {{ captacion.id }}</p>
+    <p><strong>Fecha:</strong> {{ captacion.fecha|date:"d/m/Y" }}</p>
+    <p><strong>Propiedad:</strong> {{ captacion.propiedad }}</p>
+    <p><strong>Cliente:</strong> {{ captacion.cliente }}</p>
+    <p><strong>Observaciones generales:</strong> {{ captacion.observaciones_generales|default:"–" }}</p>
+    <hr>
+
+    {% for seccion, campos in secciones_valores %}
+      <h3>{{ seccion.nombre }}</h3>
+      <table class="tabla-datos">
+        <tbody>
+          {% for nombre, valor in campos %}
+            <tr>
+              <td style="font-weight:bold;">{{ nombre }}</td>
+              <td>{{ valor|default:"–" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endfor %}
+
+    <div class="firma">
+        {% if captacion.firma_cliente %}
+            <p><strong>Firma del cliente:</strong></p>
+            <img src="{{ captacion.firma_cliente.url }}" alt="Firma" style="max-width: 320px; max-height: 160px; border: 1px solid #333;">
+            <p><strong>Fecha de firma:</strong> {{ captacion.fecha_firma|date:"d/m/Y H:i" }}</p>
+        {% else %}
+            <p style="color: red;">(Sin firma)</p>
+        {% endif %}
+    </div>
+</body>
+</html>

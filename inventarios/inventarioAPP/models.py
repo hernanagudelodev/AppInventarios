@@ -88,6 +88,9 @@ class PropiedadCliente(models.Model):
     class Meta:
         verbose_name = 'Propiedades y Clientes'
         verbose_name_plural = 'Propiedades y Clientes'
+        constraints = [
+            models.UniqueConstraint(fields=['cliente', 'propiedad', 'relacion'], name='unique_cliente_propiedad_relacion')
+        ]
 
     def __str__(self):
         return f'El cliente {self.cliente} es {self.get_relacion_display()} de la {self.propiedad}'

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Captación para: {{ relacion.propiedad }} / {{ relacion.cliente }}</h2>
+  <h2>{% if modo_edicion %}Editar{% else %}Nueva{% endif %} Captación para: {{ relacion.propiedad }} / {{ relacion.cliente }}</h2>
   <form method="post">
     {% csrf_token %}
     {% for seccion in secciones_fields %}
@@ -17,6 +17,6 @@
         {% endfor %}
       </fieldset>
     {% endfor %}
-    <button type="submit">Guardar Captación</button>
+    <button type="submit" class="btn btn-success">{% if modo_edicion %}Guardar Cambios{% else %}Guardar Captación{% endif %}</button>
   </form>
 {% endblock %}

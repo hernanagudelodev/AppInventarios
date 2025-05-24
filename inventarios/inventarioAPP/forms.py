@@ -4,20 +4,25 @@ from .models import *
 from django.forms.formsets import Form, BaseFormSet, formset_factory, ValidationError
 from .wasi_api import obtener_paises, obtener_regiones, obtener_ciudades, obtener_localidades, obtener_zonas
 
-# class CaptacionForm(forms.ModelForm):
-#     # fecha = forms.DateTimeField(label='Fecha de Captación', widget=forms.DateTimeInput)
-#     class Meta:
-#         model = FormularioCaptacion
-#         fields = ['fecha','tipo_captacion','valor_venta','valor_renta']
-#         widgets = {
-#             'fecha':forms.TextInput(attrs={'type':'datetime-local'}),
-#         }
+class PropiedadForm(forms.ModelForm):
+    class Meta:
+        model = Propiedad
+        # Incluye solo los campos relevantes
+        fields = ['ciudad', 'tipo_propiedad', 'matricula_inmobiliaria', 'direccion']
 
-# class detallesGeneralesCaptacionForm(forms.ModelForm):
-#     class Meta:
-#         model = AltDetallesGenerales
-#         fields = '__all__'
-#         exclude = ('formulario_captacion',)
+
+class AgregarPropiedadClienteForm(forms.ModelForm):
+    class Meta:
+        model = PropiedadCliente
+        fields = ['cliente', 'relacion']
+
+    def __init__(self, *args, **kwargs):
+        propiedad = kwargs.pop('propiedad', None)
+        super().__init__(*args, **kwargs)
+        if propiedad:
+            # Excluir clientes ya asociados a esa propiedad
+            clientes_asociados = propiedad.propiedadcliente_set.values_list('cliente_id', flat=True)
+            self.fields['cliente'].queryset = Cliente.objects.exclude(id__in=clientes_asociados)
 
 # class detallesExterioresCaptacionForm(forms.ModelForm):
 #     class Meta:
