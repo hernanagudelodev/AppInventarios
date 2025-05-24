@@ -23,9 +23,30 @@ from io import BytesIO
 from django.utils import timezone
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from collections import defaultdict
 
 
-
+def _get_secciones_valores(captacion):
+    """
+    Retorna una lista de tuplas (seccion, [(nombre_campo, valor), ...])
+    para el formulario de captación dado.
+    """
+    secciones_dict = defaultdict(list)
+    for valor in captacion.valores.select_related('campo__seccion').all():
+        seccion = valor.campo.seccion
+        # Formatea el valor según el tipo de campo
+        if valor.campo.tipo == 'texto':
+            val = valor.valor_texto
+        elif valor.campo.tipo == 'numero':
+            val = valor.valor_numero
+        elif valor.campo.tipo == 'booleano':
+            val = "Sí" if valor.valor_booleano else "No"
+        else:
+            val = ""
+        secciones_dict[seccion].append((valor.campo.nombre, val))
+    # Ordena las secciones por su campo 'orden'
+    secciones = sorted(secciones_dict.keys(), key=lambda s: s.orden)
+    return [(seccion, secciones_dict[seccion]) for seccion in secciones]
 
 @login_required
 def home(request):
@@ -85,31 +106,81 @@ class ListaPropiedades(LoginRequiredMixin,ListView):
     context_object_name = 'propiedades'
     template_name = "inventarioapp/propiedades/lista_propiedades.html"
 
-class CrearPropiedad(LoginRequiredMixin,CreateView):
-    model = Propiedad
-    fields = '__all__'
-    success_url = reverse_lazy('inventarioapp:lista_propiedades')
-    template_name = "inventarioapp/propiedades/form_propiedad.html"
+def crear_propiedad(request):
+    if request.method == 'POST':
+        form = PropiedadForm(request.POST)
+        if form.is_valid():
+            propiedad = form.save()
+            messages.success(request, "Propiedad creada exitosamente.")
+            return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
+    else:
+        form = PropiedadForm()
+    return render(request, 'inventarioapp/propiedades/form_propiedad.html', {
+        'form': form
+    })
 
-class ActualizarPropiedad(LoginRequiredMixin,UpdateView):
-    model = Propiedad
-    fields = '__all__'
-    success_url = reverse_lazy('inventarioapp:lista_propiedades')
-    template_name = "inventarioapp/propiedades/form_propiedad.html"
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['actualizar'] = True
-        return context
-    
+
+def actualizar_propiedad(request, id):
+    propiedad = get_object_or_404(Propiedad, id=id)
+    if request.method == 'POST':
+        form = PropiedadForm(request.POST, instance=propiedad)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Propiedad actualizada exitosamente.")
+            return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
+    else:
+        form = PropiedadForm(instance=propiedad)
+    return render(request, 'inventarioapp/propiedades/form_propiedad.html', {
+        'form': form,
+        'actualizar': True,
+        'propiedad': propiedad,
+    })
+
+def agregar_relacion_propiedad(request, propiedad_id):
+    propiedad = get_object_or_404(Propiedad, id=propiedad_id)
+    if request.method == 'POST':
+        form = AgregarPropiedadClienteForm(request.POST, propiedad=propiedad)
+        if form.is_valid():
+            relacion = form.save(commit=False)
+            relacion.propiedad = propiedad
+            relacion.save()
+            messages.success(request, "Relación agregada correctamente.")
+            return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
+    else:
+        form = AgregarPropiedadClienteForm(propiedad=propiedad)
+    return render(request, 'inventarioapp/propiedades/agregar_relacion.html', {
+        'form': form,
+        'propiedad': propiedad,
+    })
+
+def eliminar_relacion_propiedad(request, relacion_id):
+    relacion = get_object_or_404(PropiedadCliente, id=relacion_id)
+    propiedad_id = relacion.propiedad.id
+    if request.method == 'POST':
+        relacion.delete()
+        messages.success(request, "Relación eliminada correctamente.")
+    return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
+
 @login_required
-def detalle_propiedad(request,id):
-    propiedad = get_object_or_404(Propiedad,id=id)
-    formulario_captacion = FormularioCaptacion.objects.filter(propiedad=propiedad)
+def detalle_propiedad(request, id):
+    propiedad = get_object_or_404(Propiedad, id=id)
+    # Relacionados a la propiedad
+    relaciones = propiedad.propiedadcliente_set.all()
+    captaciones = FormularioCaptacion.objects.filter(propiedad_cliente__in=relaciones)
+    entregas = FormularioEntrega.objects.filter(propiedad_cliente__in=relaciones)
+    puede_entregar = FormularioCaptacion.objects.filter(
+        propiedad_cliente__propiedad=propiedad,
+        is_firmado=True
+    ).exists()
     return render(
         request,
-        'inventarioapp/propiedades/detalle_propiedad.html',
-        {'propiedad':propiedad,
-         'captaciones':formulario_captacion}
+        'inventarioapp/propiedades/detalle_propiedad_completo.html',
+        {
+            'propiedad': propiedad,
+            'captaciones': captaciones,
+            'entregas': entregas,
+            'puede_entregar': puede_entregar,
+        }
     )
 
 '''
@@ -417,8 +488,23 @@ def crear_formulario_entrega(request):
     if request.method == 'POST':
         form = SeleccionarPropiedadClienteForm(request.POST)
         if form.is_valid():
+            propiedad = form.cleaned_data['propiedad']
+            # Verifica si hay captación firmada para esta propiedad
+            captacion_firmada = FormularioCaptacion.objects.filter(
+                propiedad_cliente__propiedad=propiedad,
+                is_firmado=True
+            ).exists()
+            if not captacion_firmada:
+                messages.error(
+                    request,
+                    "No se puede crear un formulario de entrega: no existe una captación firmada para esta propiedad."
+                )
+                return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
+            
+            # Si pasa la validación, continúa el flujo
             prop_cliente = form.save()
             entrega = FormularioEntrega.objects.create(propiedad_cliente=prop_cliente)
+            messages.success(request, "Formulario de entrega creado exitosamente.")
             return redirect('inventarioapp:agregar_ambiente', entrega_id=entrega.id)
     else:
         form = SeleccionarPropiedadClienteForm()
@@ -630,6 +716,9 @@ def eliminar_item(request, item_id):
 
     return render(request, 'inventarioapp/entrega/confirmar_eliminar_item.html', {'item': item})
 
+'''
+Función para confirmar envío por correo electrónico del formulario de entrega
+'''
 def confirmar_envio_correo(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
     cliente = entrega.propiedad_cliente.cliente
@@ -709,7 +798,8 @@ def formulario_captacion_dinamico(request, relacion_id):
                         valor_booleano=value
                     )
             # 3. Redirigir a una vista de éxito, detalle, o lo que prefieras
-            return redirect('inventarioapp:lista_propiedades')
+            propiedad_id = captacion.propiedad_cliente.propiedad.id
+            return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
     else:
         form = FormularioCaptacionDinamico()
     secciones_fields = []
@@ -722,4 +812,154 @@ def formulario_captacion_dinamico(request, relacion_id):
         'relacion': relacion,
         'secciones_fields': secciones_fields,
     })
+
+'''
+Función para vista de resumen de formulario de captación
+'''
+def resumen_formulario_captacion(request, captacion_id):
+    captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
+
+    if request.method == 'POST':
+        firma_data = request.POST.get('firma_base64')
+        try:
+            if firma_data and not captacion.firma_cliente:
+                format, imgstr = firma_data.split(';base64,')
+                captacion.firma_cliente.save(f'firma_captacion_{captacion.id}.png', ContentFile(base64.b64decode(imgstr)), save=True)
+                captacion.is_firmado = True
+                captacion.fecha_firma = timezone.now()
+                captacion.save()
+                firma_dir = os.path.join(settings.MEDIA_ROOT, 'firmas_captacion')
+                os.makedirs(firma_dir, exist_ok=True)
+                file_path = os.path.join(firma_dir, f'firma_captacion_{captacion_id}.png')
+                with open(file_path, 'wb') as f:
+                    f.write(base64.b64decode(imgstr))
+                firma_url = settings.MEDIA_URL + f'firmas_captacion/firma_captacion_{captacion_id}.png'
+                messages.success(request, "Firma guardada exitosamente.")
+            else:
+                messages.error(request, "No se recibió firma válida o ya estaba firmada.")
+        except Exception as e:
+            messages.error(request, f"Error al guardar la firma: {e}")
+        return redirect('inventarioapp:resumen_formulario_captacion', captacion_id=captacion_id)
+
+    secciones_valores = _get_secciones_valores(captacion)
+
+    return render(request, 'inventarioapp/captacion/resumen_formulario_captacion.html', {
+        'captacion': captacion,
+        'secciones_valores': secciones_valores,
+    })
+
+'''
+Función para envio de formulario de captación por correo electrónico, en pdf
+'''
+def enviar_formulario_captacion(request, captacion_id):
+    captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
+    cliente = captacion.cliente
+    cliente_email = cliente.email
+
+    if request.method == 'POST':
+        correo = request.POST.get('correo')
+        # Render HTML del PDF
+        html_string = render_to_string('inventarioapp/captacion/resumen_pdf_captacion.html', {
+            'captacion': captacion,
+            # Pasa también las secciones/campos si los usas en el PDF:
+            'secciones_valores': _get_secciones_valores(captacion),
+        })
+        pdf_file = BytesIO()
+        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
+
+        email = EmailMessage(
+            'Formulario de Captación Firmado',
+            'Adjunto encontrarás el PDF del formulario de captación firmado.',
+            'comercial2.stanza@gmail.com',  # Cambia si quieres
+            [correo],
+        )
+        email.attach(f'formulario_captacion_{captacion.id}.pdf', pdf_file.getvalue(), 'application/pdf')
+        email.send()
+        messages.success(request, "Formulario enviado por correo.")
+        return redirect('inventarioapp:resumen_formulario_captacion', captacion_id=captacion_id)
+
+    return render(request, 'inventarioapp/captacion/confirmar_envio_captacion.html', {
+        'captacion': captacion,
+        'cliente_email': cliente_email
+    })
+
+
+'''
+Función de eliminar captación en borrador
+'''
+def eliminar_captacion(request, captacion_id):
+    captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
+    propiedad_id = captacion.propiedad_cliente.propiedad.id
+
+    if captacion.is_firmado:
+        messages.error(request, "No se puede eliminar una captación ya firmada.")
+        return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
+
+    if request.method == 'POST':
+        captacion.delete()
+        messages.success(request, "Captación eliminada correctamente.")
+        return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
+
+    return render(request, 'inventarioapp/captacion/confirmar_eliminar_captacion.html', {
+        'captacion': captacion,
+        'propiedad_id': propiedad_id,
+    })
+
+'''
+Función que permite editar un formulario de captación, utiliza el mismo Formulario para crear la captación
+'''
+
+def editar_captacion(request, captacion_id):
+    captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
+    propiedad_id = captacion.propiedad_cliente.propiedad.id
+    relacion = captacion.propiedad_cliente
+    if captacion.is_firmado:
+        messages.error(request, "No se puede editar una captación ya firmada.")
+        return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
+
+    # Prellenar valores actuales
+    initial = {}
+    for valor in captacion.valores.all():
+        field_name = f'campo_{valor.campo.id}'
+        if valor.campo.tipo == 'texto':
+            initial[field_name] = valor.valor_texto
+        elif valor.campo.tipo == 'numero':
+            initial[field_name] = valor.valor_numero
+        elif valor.campo.tipo == 'booleano':
+            initial[field_name] = valor.valor_booleano
+
+    if request.method == 'POST':
+        form = FormularioCaptacionDinamico(request.POST, initial=initial)
+        if form.is_valid():
+            # Actualizar los valores
+            for key, value in form.cleaned_data.items():
+                campo_id = int(key.replace('campo_', ''))
+                valor_obj = captacion.valores.filter(campo_id=campo_id).first()
+                if valor_obj:
+                    if valor_obj.campo.tipo == 'texto':
+                        valor_obj.valor_texto = value
+                    elif valor_obj.campo.tipo == 'numero':
+                        valor_obj.valor_numero = value
+                    elif valor_obj.campo.tipo == 'booleano':
+                        valor_obj.valor_booleano = value
+                    valor_obj.save()
+            messages.success(request, "Captación editada correctamente.")
+            return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
+    else:
+        form = FormularioCaptacionDinamico(initial=initial)
+
+    # --- Construcción de secciones_fields para el template ---
+    secciones_fields = []
+    for seccion in form.secciones:
+        campos = [form[field_name] for field_name in seccion['campos']]
+        secciones_fields.append({'nombre': seccion['nombre'], 'campos': campos})
+
+    return render(request, 'inventarioapp/captacion/formulario_captacion_dinamico.html', {
+        'form': form,
+        'captacion': captacion,
+        'secciones_fields': secciones_fields,
+        'modo_edicion': True,
+        'relacion': relacion,
+    })
+
 

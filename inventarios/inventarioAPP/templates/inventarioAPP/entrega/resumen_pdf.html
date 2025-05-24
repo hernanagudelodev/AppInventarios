@@ -1,17 +1,28 @@
-{% extends "base.html" %}
-
-{% block title %}Formulario de Entrega - PDF{% endblock %}
-
-{% block content %}
-    <h2>Resumen del Formulario de Entrega</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario de Entrega PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 32px; }
+        h1, h2, h3, h4 { margin-bottom: 0.5em; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 1.5em; }
+        th, td { border: 1px solid #333; padding: 6px; }
+        th { background: #eee; }
+        hr { margin: 2em 0; }
+        .firma { margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <h1>Resumen del Formulario de Entrega</h1>
     <p><strong>Propiedad:</strong> {{ entrega.propiedad_cliente.propiedad }}</p>
     <p><strong>Cliente:</strong> {{ entrega.propiedad_cliente.cliente }}</p>
-    <p><strong>Fecha:</strong> {{ entrega.fecha_entrega }}</p>
+    <p><strong>Fecha de entrega:</strong> {{ entrega.fecha_entrega|date:"d/m/Y" }}</p>
+    <hr>
 
     {% for amb in ambientes %}
-        <hr>
-        <h3>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente }}</h3>
-        <table border="1" cellpadding="5" cellspacing="0">
+        <h3>{{ amb.get_tipo_ambiente_display }} {{ amb.numero_ambiente|default:"" }}</h3>
+        <table>
             <thead>
                 <tr>
                     <th>Ítem</th>
@@ -26,22 +37,23 @@
                 <tr>
                     <td>{{ item.nombre_item }}</td>
                     <td>{{ item.get_estado_display }}</td>
-                    <td>{{ item.cantidad|default:"-" }}</td>
-                    <td>{{ item.material|default:"-" }}</td>
-                    <td>{{ item.observaciones|default:"-" }}</td>
+                    <td>{{ item.cantidad|default:"–" }}</td>
+                    <td>{{ item.material|default:"–" }}</td>
+                    <td>{{ item.observaciones|default:"–" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% endfor %}
 
-    <br>
-    <h4>Firma guardada:</h4>
-    <img src="{{ entrega.firma_cliente.url }}" width="300">
-    <p>Firmado el {{ entrega.fecha_firma }}</p>
-    <br>
-
-
-
-{% endblock %}
-
+    <div class="firma">
+        <h4>Firma guardada:</h4>
+        {% if entrega.firma_cliente %}
+            <img src="{{ entrega.firma_cliente.url }}" style="max-width:320px; max-height:160px; border:1px solid #333;">
+            <p><strong>Firmado el:</strong> {{ entrega.fecha_firma|date:"d/m/Y H:i" }}</p>
+        {% else %}
+            <p style="color: red;">(Sin firma)</p>
+        {% endif %}
+    </div>
+</body>
+</html>

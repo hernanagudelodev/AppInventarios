@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Agregar relación{% endblock %}
+{% block content %}
+  <h2>Agregar relación a {{ propiedad.direccion }}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Agregar relación</button>
+  </form>
+  <a href="{% url 'inventarioapp:detalle_propiedad' propiedad.id %}">Volver</a>
+{% endblock %}

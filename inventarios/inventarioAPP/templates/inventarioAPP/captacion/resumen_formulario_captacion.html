@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>Resumen de Captación</h1>
+  <!-- Aquí puedes mostrar los datos de la captación, por ejemplo: -->
+  <div>
+    <strong>Propiedad:</strong> {{ captacion.propiedad }}<br>
+    <strong>Cliente:</strong> {{ captacion.cliente }}<br>
+    <strong>Fecha:</strong> {{ captacion.fecha }}<br>
+    <strong>Observaciones:</strong> {{ captacion.observaciones_generales|default:"–" }}<br>
+    <!-- Muestra todos los campos capturados, si quieres -->
+    <hr>
+    <h3>Campos del formulario:</h3>
+    {% for seccion, campos in secciones_valores %}
+      <fieldset style="margin-bottom: 1em;">
+        <legend><strong>{{ seccion.nombre }}</strong></legend>
+        <ul>
+          {% for nombre, valor in campos %}
+            <li><strong>{{ nombre }}:</strong> {{ valor|default:"–" }}</li>
+          {% endfor %}
+        </ul>
+      </fieldset>
+    {% endfor %}
+  </div>
+
+  {% if not captacion.is_firmado %}
+    <h3>Firma digital</h3>
+    <form id="form-firma" method="post">
+      {% csrf_token %}
+      <canvas id="firma" width="400" height="200" style="border:1px solid #000;"></canvas>
+      <input type="hidden" id="firma_base64" name="firma_base64">
+      <br>
+      <button type="button" onclick="limpiarFirma()">Limpiar</button>
+      <button type="button" onclick="guardarFirma()">Firmar y Guardar</button>
+    </form>
+  {% else %}
+    <h3>Captación firmada el {{ captacion.fecha_firma }}</h3>
+    <img src="{{ captacion.firma_cliente.url }}" alt="Firma" style="border:1px solid #000; max-width:400px;"><br/>
+    <form method="get" action="{% url 'inventarioapp:enviar_formulario_captacion' captacion.id %}">
+      <button type="submit" class="btn btn-primary">Enviar por correo</button>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script>
+    const canvas = document.getElementById('firma');
+    if (canvas) {
+        const firmaPad = new SignaturePad(canvas);
+
+        window.limpiarFirma = function() {
+            firmaPad.clear();
+        }
+        window.guardarFirma = function() {
+            if (firmaPad.isEmpty()) {
+                alert("¡Por favor firma antes de enviar!");
+                return false;
+            }
+            const firmaData = firmaPad.toDataURL();
+            document.getElementById('firma_base64').value = firmaData;
+            document.getElementById('form-firma').submit();
+        }
+    }
+</script>
+{% endblock %}

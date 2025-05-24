@@ -28,10 +28,10 @@
         <a href="{% url 'inventarioapp:actualizar_propiedad' propiedad.id %}">Actualizar</a> 
         <a href="#">Eliminar</a> 
         {% for captacion in captaciones %}
-            <a href="{% url 'inventarioapp:nueva_captacion' propiedad.id %}">Ver Captación</a>
+            <a href="{% url 'inventarioapp:crear_captacion' propiedad.id %}">Ver Captación</a>
         {% empty %}
             Esta propiedad no tiene Captación 
-            <a href="{% url 'inventarioapp:nueva_captacion' propiedad.id %}">Nueva Captación</a>
+            <a href="{% url 'inventarioapp:crear_captacion' propiedad.id %}">Nueva Captación</a>
         {% endfor %}
     </div>
   {% else %}
