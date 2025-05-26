@@ -1,15 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>{% if modo_edicion %}Editar{% else %}Nueva{% endif %} Captación para: {{ relacion.propiedad }} / {{ relacion.cliente }}</h2>
+  <h2>
+    {% if modo_edicion %}
+      Editar Captación para: {{ relacion.propiedad }} / {{ relacion.cliente }}
+    {% else %}
+      Nueva Captación para: {{ relacion.propiedad }} / {{ relacion.cliente }}
+    {% endif %}
+  </h2>
   <form method="post">
     {% csrf_token %}
+    <div style="margin-bottom:1em;">
+      {{ form.tipo_captacion.label_tag }}<br>
+      {{ form.tipo_captacion }}
+      {% if form.tipo_captacion.errors %}
+        <span style="color:red;">{{ form.tipo_captacion.errors }}</span>
+      {% endif %}
+    </div>
+    <div style="margin-bottom:1em;">
+      {{ form.observaciones_generales.label_tag }}<br>
+      {{ form.observaciones_generales }}
+      {% if form.observaciones_generales.errors %}
+        <span style="color:red;">{{ form.observaciones_generales.errors }}</span>
+      {% endif %}
+    </div>
     {% for seccion in secciones_fields %}
       <fieldset style="margin-bottom:2em;">
         <legend style="font-weight:bold;">{{ seccion.nombre }}</legend>
         {% for field in seccion.campos %}
           <div style="margin-bottom:1em;">
             {{ field.label_tag }}<br>
-            {{ field }}<br>
+            {{ field }}
             {% if field.errors %}
               <span style="color:red;">{{ field.errors }}</span>
             {% endif %}
@@ -17,6 +37,8 @@
         {% endfor %}
       </fieldset>
     {% endfor %}
-    <button type="submit" class="btn btn-success">{% if modo_edicion %}Guardar Cambios{% else %}Guardar Captación{% endif %}</button>
+    <button type="submit" class="btn btn-success">
+      {% if modo_edicion %}Guardar Cambios{% else %}Guardar Captación{% endif %}
+    </button>
   </form>
 {% endblock %}
