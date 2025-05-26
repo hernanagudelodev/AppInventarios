@@ -97,7 +97,11 @@ ItemEntregaFormSet = modelformset_factory(
 '''
 ModelForm para hacer la creación del formulario de captación
 '''
-class FormularioCaptacionDinamico(forms.Form):
+class FormularioCaptacionDinamico(forms.ModelForm):
+    class Meta:
+        model = FormularioCaptacion
+        fields = ['tipo_captacion', 'observaciones_generales']
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.secciones = []

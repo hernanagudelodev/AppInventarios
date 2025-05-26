@@ -770,33 +770,39 @@ def formulario_captacion_dinamico(request, relacion_id):
     if request.method == 'POST':
         form = FormularioCaptacionDinamico(request.POST)
         if form.is_valid():
-            # 1. Crear el formulario de captación
+            # 1. Guardar el formulario de captación con los campos de modelo
+            captacion = form.save(commit=False)
+            captacion.propiedad_cliente = relacion
+            captacion.creado = timezone.now()
+            captacion.save()
+            '''# 1. Crear el formulario de captación
             captacion = FormularioCaptacion.objects.create(
                 propiedad_cliente=relacion,
                 creado=timezone.now()
-            )
+            )'''
             # 2. Guardar cada campo
             for key, value in form.cleaned_data.items():
-                campo_id = int(key.replace('campo_', ''))
-                campo = CampoCaptacion.objects.get(id=campo_id)
-                if campo.tipo == 'texto':
-                    ValorCampoCaptacion.objects.create(
-                        formulario=captacion,
-                        campo=campo,
-                        valor_texto=value
-                    )
-                elif campo.tipo == 'numero':
-                    ValorCampoCaptacion.objects.create(
-                        formulario=captacion,
-                        campo=campo,
-                        valor_numero=value
-                    )
-                elif campo.tipo == 'booleano':
-                    ValorCampoCaptacion.objects.create(
-                        formulario=captacion,
-                        campo=campo,
-                        valor_booleano=value
-                    )
+                if key.startswith('campo_'):
+                    campo_id = int(key.replace('campo_', ''))
+                    campo = CampoCaptacion.objects.get(id=campo_id)
+                    if campo.tipo == 'texto':
+                        ValorCampoCaptacion.objects.create(
+                            formulario=captacion,
+                            campo=campo,
+                            valor_texto=value
+                        )
+                    elif campo.tipo == 'numero':
+                        ValorCampoCaptacion.objects.create(
+                            formulario=captacion,
+                            campo=campo,
+                            valor_numero=value
+                        )
+                    elif campo.tipo == 'booleano':
+                        ValorCampoCaptacion.objects.create(
+                            formulario=captacion,
+                            campo=campo,
+                            valor_booleano=value
+                        )
             # 3. Redirigir a una vista de éxito, detalle, o lo que prefieras
             propiedad_id = captacion.propiedad_cliente.propiedad.id
             return redirect('inventarioapp:detalle_propiedad', id=propiedad_id)
@@ -818,6 +824,7 @@ Función para vista de resumen de formulario de captación
 '''
 def resumen_formulario_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
+    inmobiliaria = request.user.profile.inmobiliaria
 
     if request.method == 'POST':
         firma_data = request.POST.get('firma_base64')
@@ -846,6 +853,7 @@ def resumen_formulario_captacion(request, captacion_id):
     return render(request, 'inventarioapp/captacion/resumen_formulario_captacion.html', {
         'captacion': captacion,
         'secciones_valores': secciones_valores,
+        'inmobiliaria': inmobiliaria,
     })
 
 '''
@@ -855,6 +863,13 @@ def enviar_formulario_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
     cliente = captacion.cliente
     cliente_email = cliente.email
+    inmobiliaria = request.user.profile.inmobiliaria
+    MESES = [
+    "enero", "febrero", "marzo", "abril", "mayo", "junio",
+    "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    ]
+    nombre_mes = MESES[captacion.fecha.month - 1]
+
 
     if request.method == 'POST':
         correo = request.POST.get('correo')
@@ -863,6 +878,8 @@ def enviar_formulario_captacion(request, captacion_id):
             'captacion': captacion,
             # Pasa también las secciones/campos si los usas en el PDF:
             'secciones_valores': _get_secciones_valores(captacion),
+            'inmobiliaria': inmobiliaria,
+            'nombre_mes': nombre_mes,
         })
         pdf_file = BytesIO()
         HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
@@ -880,7 +897,9 @@ def enviar_formulario_captacion(request, captacion_id):
 
     return render(request, 'inventarioapp/captacion/confirmar_envio_captacion.html', {
         'captacion': captacion,
-        'cliente_email': cliente_email
+        'cliente_email': cliente_email,
+        'inmobiliaria': inmobiliaria,
+        'nombre_mes': nombre_mes,
     })
 
 
@@ -908,8 +927,58 @@ def eliminar_captacion(request, captacion_id):
 '''
 Función que permite editar un formulario de captación, utiliza el mismo Formulario para crear la captación
 '''
-
 def editar_captacion(request, captacion_id):
+    captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
+    # Prepara initial para los campos dinámicos
+    initial = {}
+    # Carga valores de los campos dinámicos guardados
+    for valor in captacion.valores.all():  # Asegúrate de tener related_name='valores' en ValorCampoCaptacion
+        field_name = f'campo_{valor.campo.id}'
+        if valor.campo.tipo == 'texto':
+            initial[field_name] = valor.valor_texto
+        elif valor.campo.tipo == 'numero':
+            initial[field_name] = valor.valor_numero
+        elif valor.campo.tipo == 'booleano':
+            initial[field_name] = valor.valor_booleano
+
+    if request.method == 'POST':
+        form = FormularioCaptacionDinamico(request.POST, instance=captacion)
+        # Los campos dinámicos toman sus valores de request.POST directamente
+        if form.is_valid():
+            captacion = form.save()
+            # Actualiza campos dinámicos
+            for key, value in form.cleaned_data.items():
+                if key.startswith('campo_'):
+                    campo_id = int(key.replace('campo_', ''))
+                    campo = CampoCaptacion.objects.get(id=campo_id)
+                    valor_obj, created = ValorCampoCaptacion.objects.get_or_create(
+                        formulario=captacion,
+                        campo=campo,
+                    )
+                    if campo.tipo == 'texto':
+                        valor_obj.valor_texto = value
+                    elif campo.tipo == 'numero':
+                        valor_obj.valor_numero = value
+                    elif campo.tipo == 'booleano':
+                        valor_obj.valor_booleano = value
+                    valor_obj.save()
+            return redirect('inventarioapp:detalle_propiedad', id=captacion.propiedad_cliente.propiedad.id)
+    else:
+        # Instancia del model, initial para los dinámicos
+        form = FormularioCaptacionDinamico(instance=captacion, initial=initial)
+
+    secciones_fields = []
+    for seccion in form.secciones:
+        campos = [form[field_name] for field_name in seccion['campos']]
+        secciones_fields.append({'nombre': seccion['nombre'], 'campos': campos})
+
+    return render(request, 'inventarioapp/captacion/formulario_captacion_dinamico.html', {
+        'form': form,
+        'relacion': captacion.propiedad_cliente,
+        'modo_edicion': True,
+        'secciones_fields': secciones_fields,
+    })
+'''def editar_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
     propiedad_id = captacion.propiedad_cliente.propiedad.id
     relacion = captacion.propiedad_cliente
@@ -960,6 +1029,6 @@ def editar_captacion(request, captacion_id):
         'secciones_fields': secciones_fields,
         'modo_edicion': True,
         'relacion': relacion,
-    })
+    })'''
 
 
