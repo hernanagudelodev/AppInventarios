@@ -37,28 +37,45 @@
 
     <br>
 
-    {% if entrega.firma_cliente %}
-        <h4>Firma guardada:</h4>
-        <img src="{{ entrega.firma_cliente.url }}" width="300">
-        <br>
-    {% else %}
-        <form method="post" id="form-firma">
-            {% csrf_token %}
-            <canvas id="firma" width="300" height="150" style="border:1px solid #000;"></canvas>
-            <input type="hidden" name="firma_base64" id="firma_base64">
-            <br>
-            <button type="button" onclick="limpiarFirma()">Limpiar</button>
-            <button type="submit" onclick="guardarFirma()">Guardar Firma</button>
-        </form>
-    {% endif %}
+    <div class="contractual" style="margin:28px 0 15px 0; padding:18px; background:#f9f9f9; border:1.5px solid #ccc; font-size:1.1em;">
+        <strong>Condiciones contractuales de la entrega:</strong><br>
+        {{ inmobiliaria.texto_contractual_entrega|linebreaksbr }}
+    </div>
 
-    {% if entrega.is_firmado %}
-        <p>Firmado el {{ entrega.fecha_firma }}</p>
-        <a href="{% url 'inventarioapp:ver_pdf_formulario_entrega' entrega.id %}" class="btn btn-outline-primary">Ver PDF</a>
-        <a href="{% url 'inventarioapp:confirmar_envio_correo' entrega.id %}" class="btn btn-primary">Enviar al correo</a>
-    {% else %}
-        <a href="{% url 'inventarioapp:agregar_ambiente' entrega.id %}" class="btn btn-warning">Editar</a>
-    {% endif %}
+    <div class="firma-area" style="margin-top:40px;display:flex;justify-content:space-between;">
+        <div style="text-align:center;">
+            <strong>Firma del cliente:</strong><br>
+            {% if not entrega.is_firmado %}
+                <h3>Firma digital</h3>
+                <form id="form-firma" method="post">
+                    {% csrf_token %}
+                    <canvas id="firma" width="400" height="200" style="border:1px solid #000;"></canvas>
+                    <input type="hidden" id="firma_base64" name="firma_base64">
+                    <br>
+                    <button type="button" onclick="limpiarFirma()">Limpiar</button>
+                    <button type="button" onclick="guardarFirma()">Firmar y Guardar</button>
+                </form>
+            {% else %}
+                <img src="{{ entrega.firma_cliente.url }}" alt="Firma" style="border:1px solid #000; max-width:400px;"><br/>
+                Entrega firmada el {{ entrega.fecha_firma }}
+                <form method="get" action="{% url 'inventarioapp:confirmar_envio_correo' entrega.id %}">
+                    <button type="submit" class="btn btn-primary">Enviar por correo</button>
+                </form>
+            {% endif %}
+        </div>
+        <div style="text-align:center;">
+            <strong>Firma de la inmobiliaria:</strong><br>
+            {% if inmobiliaria.firma_autorizada %}
+                <img src="{{ inmobiliaria.firma_autorizada.url }}" style="max-width:220px; border:1px solid #aaa;"><br>
+            {% else %}
+                (Sin firma cargada)
+            {% endif %}
+            <br>
+            <strong>Nombre:</strong> {{ inmobiliaria.nombre_firma_autorizada }}<br>
+            <strong>Cédula:</strong> {{ inmobiliaria.cedula_firma_autorizada }}
+        </div>
+    </div>
+
     
 {% endblock %}
 

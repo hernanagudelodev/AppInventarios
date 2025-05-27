@@ -42,31 +42,26 @@
       {% endif %}
   </div>
 
-  {% if not captacion.is_firmado %}
-    <h3>Firma digital</h3>
-    <form id="form-firma" method="post">
-      {% csrf_token %}
-      <canvas id="firma" width="400" height="200" style="border:1px solid #000;"></canvas>
-      <input type="hidden" id="firma_base64" name="firma_base64">
-      <br>
-      <button type="button" onclick="limpiarFirma()">Limpiar</button>
-      <button type="button" onclick="guardarFirma()">Firmar y Guardar</button>
-    </form>
-  {% else %}
-    <h3>Captación firmada el {{ captacion.fecha_firma }}</h3>
-    <img src="{{ captacion.firma_cliente.url }}" alt="Firma" style="border:1px solid #000; max-width:400px;"><br/>
-    <form method="get" action="{% url 'inventarioapp:enviar_formulario_captacion' captacion.id %}">
-      <button type="submit" class="btn btn-primary">Enviar por correo</button>
-    </form>
-  {% endif %}
+  
 
   <div class="firma-area" style="margin-top:40px;display:flex;justify-content:space-between;">
       <div style="text-align:center;">
           <strong>Firma del cliente:</strong><br>
-          {% if captacion.firma_cliente %}
-              <img src="{{ captacion.firma_cliente.url }}" style="max-width:220px; border:1px solid #aaa;"><br>
+          {% if not captacion.is_firmado %}
+            <h3>Firma digital</h3>
+            <form id="form-firma" method="post">
+              {% csrf_token %}
+              <canvas id="firma" width="400" height="200" style="border:1px solid #000;"></canvas>
+              <input type="hidden" id="firma_base64" name="firma_base64">
+              <br>
+              <button type="button" onclick="limpiarFirma()">Limpiar</button>
+              <button type="button" onclick="guardarFirma()">Firmar y Guardar</button>
+            </form>
           {% else %}
-              (Sin firma)
+            <img src="{{ captacion.firma_cliente.url }}" alt="Firma" style="border:1px solid #000; max-width:400px;"><br/>
+            <form method="get" action="{% url 'inventarioapp:enviar_formulario_captacion' captacion.id %}">
+              <button type="submit" class="btn btn-primary">Enviar por correo</button>
+            </form>
           {% endif %}
           <br>
           <strong>Fecha de firma:</strong>
