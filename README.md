@@ -2,6 +2,31 @@
 :construction: Proyecto en construcción :construction:;
 Este proyecto es una App de inventarios para inmobiliarias
 
+# Checklist SaaS Inmobiliario – MVP & Roadmap
+
+---
+
+## 🟢 Inmediato (MVP Release)
+- [ ] Terminar de revisar todas las **plantillas** para ajustes visuales (web/mobile, tablas, formularios, dashboards, PDFs).
+- [ ] Agregar **filtros, búsquedas y paginación** a listados (clientes, propiedades, formularios).
+- [ ] **Checklist y flujo de pruebas finales (QA)** para cada funcionalidad antes del release.
+- [ ] **Despliegue:** definir opciones de hosting profesional (ej: Render, Railway, DigitalOcean, PythonAnywhere, etc.) y migración de la base de datos.
+- [ ] **Pruebas de usuario final** (validación real con usuarios de la inmobiliaria y feedback).
+
+---
+
+## 🟡 Versión 2 y siguientes (Roadmap estratégico)
+- [ ] Convertir el sistema en **multi-inmobiliaria**: que cada usuario solo acceda a datos de su inmobiliaria.
+- [ ] **Integración con Wasi** (vía API REST para publicar propiedades y sincronizar inventario).
+- [ ] **Agente inmobiliario AI**: sugerencias inteligentes, análisis de captación y precios.
+- [ ] Afinar o ajustar **visuales avanzados** para dispositivos, navegadores, branding único, customización de colores.
+- [ ] **Control de permisos por roles** (administrador, agente, asistente, etc.).
+- [ ] **Landing page** comercial para captar nuevos clientes fuera de la inmobiliaria actual.
+
+---
+
+
+
 # Brief Técnico – SaaS Inmobiliario
 
 ## Objetivo General
