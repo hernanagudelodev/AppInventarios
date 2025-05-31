@@ -24,6 +24,8 @@ from django.utils import timezone
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from collections import defaultdict
+import random
+from dateutil.relativedelta import relativedelta
 
 
 def _get_secciones_valores(captacion):
@@ -82,14 +84,64 @@ def anio_a_letras(anio):
     else:
         return base + " " + numero_a_letras(resto)
 
-
+def meses_atras(fecha, n):
+    return fecha - relativedelta(months=n)
 
 @login_required
 def home(request):
+    
+    captaciones_pendientes = FormularioCaptacion.objects.filter(is_firmado=False).order_by('-creado')[:5]
+    entregas_pendientes = FormularioEntrega.objects.filter(is_firmado=False).order_by('-creado')[:5]
+
+    now = timezone.now()
+    meses_es = [
+        "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+        ]
+    nombre_mes = meses_es[now.month - 1]
+
+    captaciones_mes = FormularioCaptacion.objects.filter(
+        creado__year=now.year, creado__month=now.month
+    ).count()
+    entregas_mes = FormularioEntrega.objects.filter(
+        creado__year=now.year, creado__month=now.month
+    ).count()
+
+    # Lista de los últimos 6 meses
+    meses = []
+    captaciones_por_mes = []
+    nombres_meses = []
+    for i in range(5, -1, -1):  # 5 meses atrás hasta actual
+        mes_fecha = meses_atras(now.replace(day=1), i)
+        print(mes_fecha)
+        meses.append(mes_fecha)
+        captaciones = FormularioCaptacion.objects.filter(
+            creado__year=mes_fecha.year, creado__month=mes_fecha.month
+        ).count()
+        # Solo para pruebas:
+        if captaciones == 0:
+            captaciones = random.randint(1, 10)
+        captaciones_por_mes.append(captaciones)
+        nombres_meses.append(f"{meses_es[mes_fecha.month - 1].capitalize()} {mes_fecha.year}")
+
+    estadisticas = {
+    "total_propiedades": Propiedad.objects.count(),
+    "total_clientes": Cliente.objects.count(),
+    "captaciones_mes": captaciones_mes,
+    "entregas_mes": entregas_mes,
+    'nombre_mes': nombre_mes,
+    }
+
     return render(
         request,
         'inventarioapp/home.html',
-        {'section':'home'}
+        {'section':'home',
+            "estadisticas": estadisticas,
+            'captaciones_pendientes': captaciones_pendientes,
+            'entregas_pendientes': entregas_pendientes,
+            'captaciones_labels': nombres_meses,   # ['Enero 2024', ..., 'Junio 2024']
+            'captaciones_data': captaciones_por_mes,  # [4, 6, 3, 7, 8, 5]
+        }
     )
 
 ''' 

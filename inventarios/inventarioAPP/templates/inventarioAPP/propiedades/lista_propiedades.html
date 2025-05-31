@@ -3,41 +3,50 @@
 {% block title %}Lista de Propiedades{% endblock %}
 
 {% block content %}
-  <h1>Lista de Propiedades</h1>
-  {% if propiedades %}
-    <table>
+  <h2 class="mb-4">Lista de Propiedades</h2>
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+        <tr>
+            <th>Dirección</th>
+            <th>Ciudad</th>
+            <th>Tipo</th>
+            <th>Matrícula</th>
+            <th>Clientes</th>
+            <th style="min-width:180px;">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for propiedad in propiedades %}
-            <tr>
-                <th>
-                    <a href="{% url 'inventarioapp:detalle_propiedad' propiedad.id %}">{{ propiedad.direccion }}</a>
-                </th>
-                <th>
-                    {{ propiedad.ciudad }}
-                </th>
-                <th>
-                    {{ propiedad.tipo_propiedad }}
-                </th>
-                <th>
-                    {{ propiedad.matricula_inmobiliaria }}
-                </th>
-                <th>
-                    {% for cliente in propiedad.clientes.all %}
-                        {{ cliente }} {% if not forloop.last %}/{% endif %}
-                    {% empty %}
-                        Esta propiedad no tiene clientes
-                    {% endfor %}
-                </th>
-                <th>
-                    <a href="{% url 'inventarioapp:actualizar_propiedad' propiedad.id %}">Actualizar</a>
-                </th>
-                <th>
-                    <a href="#">Eliminar</a>
-                </th>
-            </tr>
+        <tr>
+            <td>
+            <a href="{% url 'inventarioapp:detalle_propiedad' propiedad.id %}" class="fw-bold link-primary">
+                {{ propiedad.direccion }}
+            </a>
+            </td>
+            <td>{{ propiedad.ciudad|default:"–" }}</td>
+            <td>{{ propiedad.tipo_propiedad|default:"–" }}</td>
+            <td>{{ propiedad.matricula_inmobiliaria|default:"–" }}</td>
+            <td>
+            {% for cliente in propiedad.clientes.all %}
+                <span class="badge bg-secondary">{{ cliente.nombre }}</span>
+                {% if not forloop.last %}<br>{% endif %}
+            {% empty %}
+                <span class="text-muted">Sin clientes</span>
+            {% endfor %}
+            </td>
+            <td>
+            <a href="{% url 'inventarioapp:actualizar_propiedad' propiedad.id %}" class="btn btn-sm btn-outline-secondary me-1">Actualizar</a>
+            <a href="#" class="btn btn-sm btn-outline-danger me-1">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center text-muted">No hay propiedades registradas.</td>
+        </tr>
         {% endfor %}
+        </tbody>
     </table>
-  {% else %}
-    <p>No hay propiedades creadas</p>
-  {% endif %}
-  <p><a href="{% url 'inventarioapp:crear_propiedad' %}">Crear una Propiedad</a></p>
+    </div>
+    <a href="{% url 'inventarioapp:crear_propiedad' %}" class="btn btn-success mt-2">Crear una Propiedad</a>
 {% endblock %}
