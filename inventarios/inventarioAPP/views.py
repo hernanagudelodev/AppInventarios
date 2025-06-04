@@ -99,6 +99,7 @@ def home(request):
         "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
         ]
     nombre_mes = meses_es[now.month - 1]
+    print(nombre_mes)
 
     captaciones_mes = FormularioCaptacion.objects.filter(
         creado__year=now.year, creado__month=now.month
@@ -113,7 +114,6 @@ def home(request):
     nombres_meses = []
     for i in range(5, -1, -1):  # 5 meses atrás hasta actual
         mes_fecha = meses_atras(now.replace(day=1), i)
-        print(mes_fecha)
         meses.append(mes_fecha)
         captaciones = FormularioCaptacion.objects.filter(
             creado__year=mes_fecha.year, creado__month=mes_fecha.month
@@ -201,6 +201,10 @@ def crear_propiedad(request):
             propiedad = form.save()
             messages.success(request, "Propiedad creada exitosamente.")
             return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
+        else:
+            # Captura errores no de campos, sino generales (non_field_errors)
+            for error in form.non_field_errors():
+                messages.error(request, error)
     else:
         form = PropiedadForm()
     return render(request, 'inventarioapp/propiedades/form_propiedad.html', {
@@ -216,6 +220,10 @@ def actualizar_propiedad(request, id):
             form.save()
             messages.success(request, "Propiedad actualizada exitosamente.")
             return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
+        else:
+            # Captura errores no de campos, sino generales (non_field_errors)
+            for error in form.non_field_errors():
+                messages.error(request, error)
     else:
         form = PropiedadForm(instance=propiedad)
     return render(request, 'inventarioapp/propiedades/form_propiedad.html', {
@@ -335,12 +343,20 @@ A partir de esta linea se hacen las vistas para la creación de formularios de e
 '''
 La primera vista crea la relación entre cliente y propiedad.
 '''
-def crear_formulario_entrega(request):
+
+def crear_formulario_entrega(request, propiedad_id):
+    propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     if request.method == 'POST':
-        form = SeleccionarPropiedadClienteForm(request.POST)
+        form = SeleccionarPropiedadClienteForm(request.POST, propiedad=propiedad)
         if form.is_valid():
-            propiedad = form.cleaned_data['propiedad']
-            # Verifica si hay captación firmada para esta propiedad
+            cliente = form.cleaned_data['cliente']
+            # Busca o crea la relación arrendatario-propiedad
+            prop_cliente, created = PropiedadCliente.objects.get_or_create(
+                cliente=cliente,
+                propiedad=propiedad,
+                relacion=PropiedadCliente.ARRENDATARIO
+            )
+            # Verifica si hay captación firmada
             captacion_firmada = FormularioCaptacion.objects.filter(
                 propiedad_cliente__propiedad=propiedad,
                 is_firmado=True
@@ -350,16 +366,15 @@ def crear_formulario_entrega(request):
                     request,
                     "No se puede crear un formulario de entrega: no existe una captación firmada para esta propiedad."
                 )
-                return redirect('inventarioapp:detalle_propiedad', id=propiedad.id)
-            
-            # Si pasa la validación, continúa el flujo
-            prop_cliente = form.save()
+                return redirect('inventarioapp:detalle_propiedad', propiedad_id=propiedad.id)
+
             entrega = FormularioEntrega.objects.create(propiedad_cliente=prop_cliente)
             messages.success(request, "Formulario de entrega creado exitosamente.")
             return redirect('inventarioapp:agregar_ambiente', entrega_id=entrega.id)
     else:
-        form = SeleccionarPropiedadClienteForm()
-    return render(request, 'inventarioapp/entrega/crear_formulario_entrega.html', {'form': form})
+        form = SeleccionarPropiedadClienteForm(propiedad=propiedad)
+    return render(request, 'inventarioapp/entrega/crear_formulario_entrega.html', {'form': form, 'propiedad': propiedad})
+
 
 '''
 Esta vista permite agregar ambiente al formulario de entrega.
@@ -523,6 +538,26 @@ def formularios_entrega_propiedad(request, propiedad_id):
     })
 
 '''
+Función para eliminar una entrega en borrador
+'''
+def confirmar_eliminar_entrega(request, entrega_id):
+    entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
+    propiedad_id = entrega.propiedad_cliente.propiedad.id
+    if entrega.is_firmado:
+        messages.error(request, "No se puede eliminar un formulario de entrega ya firmado.")
+        return redirect('inventarioapp:detalle_propiedad', propiedad_id)
+    
+    if request.method == "POST":
+        entrega.delete()
+        messages.success(request, "Formulario de entrega en borrador eliminado exitosamente.")
+        return redirect('inventarioapp:detalle_propiedad', propiedad_id)
+    
+    return render(request, 'inventarioapp/entrega/confirmar_eliminar_entrega.html', {
+        'entrega': entrega,
+        'propiedad': entrega.propiedad_cliente.propiedad
+    })
+
+'''
 función para editar ambiente, el objetivo es editar el nombre del ambiente, esto lo permite hacer en la pantalla de agregar ambiente
 '''
 def editar_ambiente(request, ambiente_id):
@@ -619,7 +654,18 @@ Función para vista que obtiene los clientes relacionados con una propiedad
 '''
 def seleccionar_cliente_para_captacion(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
-    relaciones = PropiedadCliente.objects.filter(propiedad=propiedad)
+    relaciones = PropiedadCliente.objects.filter(
+        propiedad=propiedad,
+        relacion__in=['PR', 'AP']
+    )
+    # Si NO hay relaciones válidas para captación, redirige y muestra mensaje
+    if not relaciones.exists():
+        messages.warning(
+            request,
+            "Debes asociar primero un propietario o apoderado a esta propiedad para poder crear una captación."
+        )
+        return redirect('inventarioapp:agregar_relacion_propiedad', propiedad_id=propiedad.id)
+    
     if request.method == 'POST':
         relacion_id = request.POST.get('relacion_id')
         return redirect('inventarioapp:formulario_captacion', relacion_id=relacion_id)

@@ -28,7 +28,7 @@
     <div class="card text-center shadow-sm h-100">
       <div class="card-body">
         <i class="bi bi-calendar-event fs-2 text-info"></i>
-        <h6 class="card-title mt-2">Captaciones y Entregas de {{ nombre_mes|capfirst }}</h6>
+        <h6 class="card-title mt-2">Captaciones y Entregas de {{ estadisticas.nombre_mes|capfirst }}</h6>
         <div class="d-flex justify-content-center align-items-center mt-3 gap-5 flex-wrap">
           <div>
             <span class="text-muted small">Captaciones</span>
@@ -113,11 +113,11 @@
         <i class="bi bi-lightning"></i> Accesos rápidos
       </div>
       <div class="card-body">
-        <a href="{% url 'inventarioapp:crear_formulario_entrega' %}" class="btn btn-outline-primary mb-2 w-100">
-          <i class="bi bi-file-earmark-plus"></i> Nueva entrega
+        <a href="{% url 'inventarioapp:crear_cliente' %}" class="btn btn-outline-primary mb-2 w-100">
+          <i class="bi bi-file-earmark-plus"></i> Crear Cliente
         </a>
-        <a href="{% url 'inventarioapp:crear_captacion' propiedad_id=1 %}" class="btn btn-outline-success mb-2 w-100">
-          <i class="bi bi-file-earmark-plus"></i> Nueva captación
+        <a href="{% url 'inventarioapp:crear_propiedad' %}" class="btn btn-outline-success mb-2 w-100">
+          <i class="bi bi-file-earmark-plus"></i> Crear Propiedad
         </a>
         <!-- Más acciones rápidas -->
       </div>
