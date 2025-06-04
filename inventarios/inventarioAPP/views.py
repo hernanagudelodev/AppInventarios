@@ -1,6 +1,8 @@
 from django.shortcuts import render,get_object_or_404, redirect
+from django.core.paginator import Paginator
 from django.views.generic import CreateView, UpdateView, DeleteView, ListView, DetailView
 from .models import *
+from django.db.models import Q
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
@@ -17,7 +19,7 @@ import base64
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-os.environ['WEASYPRINT_DLL_DIRECTORIES'] = r'C:\Program Files\GTK3-Runtime Win64\bin'
+# os.environ['WEASYPRINT_DLL_DIRECTORIES'] = r'C:\Program Files\GTK3-Runtime Win64\bin'
 from weasyprint import HTML
 from io import BytesIO
 from django.utils import timezone
@@ -160,6 +162,22 @@ class ListaClientes(LoginRequiredMixin,ListView):
     fields = '__all__'
     context_object_name = 'clientes'
     template_name = "inventarioapp/clientes/lista_clientes.html"
+    paginate_by = 2   # Número de clientes por página
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get("q", "")
+        if query:
+            queryset = queryset.filter(
+                Q(nombre__icontains=query) |
+                Q(identificacion__icontains=query) 
+            )
+        return queryset.order_by("nombre")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["q"] = self.request.GET.get("q", "")
+        return context
 
 class ActualizarCliente(LoginRequiredMixin, UpdateView):
     model = Cliente
@@ -193,7 +211,26 @@ class ListaPropiedades(LoginRequiredMixin,ListView):
     fields = '__all__'
     context_object_name = 'propiedades'
     template_name = "inventarioapp/propiedades/lista_propiedades.html"
+    paginate_by = 5   # Número de propiedades por página
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        query = self.request.GET.get("q", "")
+        if query:
+            queryset = queryset.filter(
+                Q(direccion__icontains=query) |
+                Q(ciudad__nombre__icontains=query) |  # si ciudad es FK a Ciudad
+                Q(tipo_propiedad__tipo_propiedad__icontains=query) |
+                Q(propiedadcliente__cliente__nombre__icontains=query)
+            )
+        return queryset.order_by("id").distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["q"] = self.request.GET.get("q", "")
+        return context
+
+@login_required
 def crear_propiedad(request):
     if request.method == 'POST':
         form = PropiedadForm(request.POST)
@@ -211,7 +248,7 @@ def crear_propiedad(request):
         'form': form
     })
 
-
+@login_required
 def actualizar_propiedad(request, id):
     propiedad = get_object_or_404(Propiedad, id=id)
     if request.method == 'POST':
@@ -232,6 +269,7 @@ def actualizar_propiedad(request, id):
         'propiedad': propiedad,
     })
 
+@login_required
 def agregar_relacion_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     if request.method == 'POST':
@@ -283,6 +321,7 @@ def detalle_propiedad(request, id):
 '''
 Vista para estimar precio del metro cuadrado de una propiedad según varios filtros
 '''
+@login_required
 def estimador_view(request):
     resultado = None
     if request.method == 'POST':
@@ -310,25 +349,28 @@ def estimador_view(request):
                    'inventarioapp/asistenteAI/estimador_m2.html',
                    {'form': form, 'resultado': resultado})
 
-
+@login_required
 def get_regiones(request):
     if request.method == "GET":
         id_country = request.GET.get("id_country")
         regiones = obtener_regiones(id_country)
         return JsonResponse({"regiones": regiones})
 
+@login_required
 def get_ciudades(request):
     if request.method == "GET":
         id_region = request.GET.get("id_region")
         ciudades = obtener_ciudades(id_region)
         return JsonResponse({"ciudades": ciudades})
 
+@login_required
 def get_localidades(request):
     if request.method == "GET":
         id_city = request.GET.get("id_city")
         localidades = obtener_localidades(id_city)
         return JsonResponse({"localidades": localidades})
 
+@login_required
 def get_zonas(request):
     if request.method == "GET":
         id_city = request.GET.get("id_city")
@@ -343,7 +385,7 @@ A partir de esta linea se hacen las vistas para la creación de formularios de e
 '''
 La primera vista crea la relación entre cliente y propiedad.
 '''
-
+@login_required
 def crear_formulario_entrega(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     if request.method == 'POST':
@@ -379,7 +421,7 @@ def crear_formulario_entrega(request, propiedad_id):
 '''
 Esta vista permite agregar ambiente al formulario de entrega.
 '''
-
+@login_required
 def agregar_ambiente(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
 
@@ -408,6 +450,7 @@ def agregar_ambiente(request, entrega_id):
 '''
 Esta vista permite modificar los items de un ambiente de un formulario de entrega
 '''
+@login_required
 def editar_items_ambiente(request, ambiente_id):
     ambiente = get_object_or_404(AmbienteEntrega, id=ambiente_id)
     formset = ItemEntregaFormSet(queryset=ambiente.items.all())
@@ -428,6 +471,7 @@ def editar_items_ambiente(request, ambiente_id):
 '''
 Esta vista permite ver el resumen de un formulario de entrega y firmarlo
 '''
+@login_required
 def resumen_formulario_entrega(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
     inmobiliaria = request.user.profile.inmobiliaria
@@ -466,6 +510,7 @@ def resumen_formulario_entrega(request, entrega_id):
 '''
 Función para envio de formulario en pdf por correo electrónico
 '''
+@login_required
 def enviar_formulario_pdf(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
     ambientes = entrega.ambientes.prefetch_related('items').all()
@@ -509,6 +554,7 @@ def enviar_formulario_pdf(request, entrega_id):
 '''
 Función para descargar el pdf una vez firmado.
 '''
+@login_required
 def ver_pdf_formulario_entrega(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
     ambientes = entrega.ambientes.prefetch_related('items').all()
@@ -529,6 +575,7 @@ def ver_pdf_formulario_entrega(request, entrega_id):
 '''
 Función que carga el formulario de entregas de una propiedad
 '''
+@login_required
 def formularios_entrega_propiedad(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     entregas = FormularioEntrega.objects.filter(propiedad_cliente__propiedad=propiedad)
@@ -540,6 +587,7 @@ def formularios_entrega_propiedad(request, propiedad_id):
 '''
 Función para eliminar una entrega en borrador
 '''
+@login_required
 def confirmar_eliminar_entrega(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
     propiedad_id = entrega.propiedad_cliente.propiedad.id
@@ -560,6 +608,7 @@ def confirmar_eliminar_entrega(request, entrega_id):
 '''
 función para editar ambiente, el objetivo es editar el nombre del ambiente, esto lo permite hacer en la pantalla de agregar ambiente
 '''
+@login_required
 def editar_ambiente(request, ambiente_id):
     ambiente = get_object_or_404(AmbienteEntrega, id=ambiente_id)
     entrega = ambiente.formulario_entrega
@@ -583,6 +632,7 @@ def editar_ambiente(request, ambiente_id):
 '''
 Función para eliminar ambiente, esta será llamada desde la vista de agregar ambiente
 '''
+@login_required
 def eliminar_ambiente(request, ambiente_id):
     ambiente = get_object_or_404(AmbienteEntrega, id=ambiente_id)
     entrega = ambiente.formulario_entrega
@@ -601,6 +651,7 @@ def eliminar_ambiente(request, ambiente_id):
 '''
 Función de eliminar items de ambientes
 '''
+@login_required
 def eliminar_item(request, item_id):
     item = get_object_or_404(ItemEntrega, id=item_id)
     ambiente = item.ambiente_entrega
@@ -620,6 +671,7 @@ def eliminar_item(request, item_id):
 '''
 Función para confirmar envío por correo electrónico del formulario de entrega
 '''
+@login_required
 def confirmar_envio_correo(request, entrega_id):
     entrega = get_object_or_404(FormularioEntrega, id=entrega_id)
     cliente = entrega.propiedad_cliente.cliente
@@ -652,6 +704,7 @@ A partir de esta linea se implementa un nuevo modelo de inventario de captación
 '''
 Función para vista que obtiene los clientes relacionados con una propiedad
 '''
+@login_required
 def seleccionar_cliente_para_captacion(request, propiedad_id):
     propiedad = get_object_or_404(Propiedad, id=propiedad_id)
     relaciones = PropiedadCliente.objects.filter(
@@ -677,6 +730,7 @@ def seleccionar_cliente_para_captacion(request, propiedad_id):
 '''
 Función para crear el formulario de captación dínamico según lo guardado en CampoCaptacion y SeccionCaptacion
 '''
+@login_required
 def formulario_captacion_dinamico(request, relacion_id):
     relacion = get_object_or_404(PropiedadCliente, id=relacion_id)
     if request.method == 'POST':
@@ -729,6 +783,7 @@ def formulario_captacion_dinamico(request, relacion_id):
 '''
 Función para vista de resumen de formulario de captación
 '''
+@login_required
 def resumen_formulario_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
     inmobiliaria = request.user.profile.inmobiliaria
@@ -766,6 +821,7 @@ def resumen_formulario_captacion(request, captacion_id):
 '''
 Función para envio de formulario de captación por correo electrónico, en pdf
 '''
+@login_required
 def enviar_formulario_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
     propiedad_id = captacion.propiedad_cliente.propiedad.id
@@ -817,6 +873,7 @@ def enviar_formulario_captacion(request, captacion_id):
 '''
 Función de eliminar captación en borrador
 '''
+@login_required
 def eliminar_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
     propiedad_id = captacion.propiedad_cliente.propiedad.id
@@ -838,6 +895,7 @@ def eliminar_captacion(request, captacion_id):
 '''
 Función que permite editar un formulario de captación, utiliza el mismo Formulario para crear la captación
 '''
+@login_required
 def editar_captacion(request, captacion_id):
     captacion = get_object_or_404(FormularioCaptacion, id=captacion_id)
     # Prepara initial para los campos dinámicos
