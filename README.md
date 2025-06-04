@@ -11,7 +11,7 @@ Este proyecto es una App de inventarios para inmobiliarias, 100% responsive, rob
 
 - [X] Terminar de revisar todas las **plantillas** para ajustes visuales (web/mobile, tablas, formularios, dashboards, PDFs).
 - [X] Agregar **filtros, búsquedas y paginación** a listados (clientes, propiedades, formularios).
-- [ ] **Checklist y flujo de pruebas finales (QA)** para cada funcionalidad antes del release.
+- [X] **Checklist y flujo de pruebas finales (QA)** para cada funcionalidad antes del release.
 - [ ] **Despliegue:** definir opciones de hosting profesional (ej: Render, Railway, DigitalOcean, PythonAnywhere, etc.) y migración de la base de datos.
 - [ ] **Pruebas de usuario final** (validación real con usuarios de la inmobiliaria y feedback).
 
