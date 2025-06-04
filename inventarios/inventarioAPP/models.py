@@ -58,6 +58,8 @@ class Propiedad(models.Model):
                                      through='PropiedadCliente',
                                      related_name='clientes_propiedad')
     created = models.DateTimeField(auto_now_add=True)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Propiedad'

@@ -1,10 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Welcome{% endblock %}
+
+
+{% block title %}¡Bienvenido!{% endblock %}
+
 {% block content %}
-    <h1>Welcome {{ new_user.first_name }}</h1>
-    <p>
-        Your account has been successfully created.
-        Now you can <a href="{% url "login" %}">Log in</a>
-    </p>
-    
+<div class="container" style="max-width: 500px;">
+  <div class="card shadow-sm mt-5 text-center">
+    <div class="card-header bg-success text-white">
+      <h4 class="mb-0"><i class="bi bi-person-check"></i> ¡Bienvenido, {{ new_user.first_name }}!</h4>
+    </div>
+    <div class="card-body">
+      <p class="fs-5 mb-4">
+        Tu cuenta ha sido creada exitosamente.<br>
+        Ahora puedes iniciar sesión en la plataforma.
+      </p>
+      <a href="{% url 'login' %}" class="btn btn-primary w-100">
+        <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

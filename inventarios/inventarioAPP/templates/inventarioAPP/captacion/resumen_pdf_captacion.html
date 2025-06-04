@@ -82,10 +82,10 @@
             {{ inmobiliaria.texto_contractual_captacion_renta|linebreaksbr }}
         {% else %}
             (No hay texto contractual para este tipo de captación)
-        {% endif %}
-        En constancia se firma el presente documento en dos originales del mismo tenor, en la ciudad de Pereira, a los 
-        <strong>{{ captacion.fecha.day }}</strong> ({{ captacion.fecha.day|stringformat:"02d" }}) días del mes de
-        <strong>{{ nombre_mes }}</strong> de dos mil <strong>{{ captacion.fecha.year }}</strong> ({{ captacion.fecha.year }})
+        {% endif %} 
+        En constancia se firma el presente documento en dos originales del mismo tenor, en la ciudad de Pereira,
+        a los {{ dia_letras }} (<strong></strong>{{ captacion.fecha.day }}</strong>) días del mes de
+        <strong>{{ nombre_mes }}</strong> de {{ anio_letras }} (<strong>{{ captacion.fecha.year }}</strong>)
     </div>
 
     <div class="firma-area">

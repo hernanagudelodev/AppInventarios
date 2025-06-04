@@ -3,37 +3,41 @@
 {% block title %}Lista de Clientes{% endblock %}
 
 {% block content %}
-  <h1>Lista de Clientes</h1>
-  {% if clientes %}
-    <table>
+  <h2 class="mb-4">Lista de Clientes</h2>
+    <div class="table-responsive">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
+        <tr>
+            <th>Nombre</th>
+            <th>Identificación</th>
+            <th>Dirección</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+            <th style="min-width:120px;">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for cliente in clientes %}
-            <tr>
-                <th>
-                    <a href="{% url 'inventarioapp:detalle_cliente' cliente.id %}">{{ cliente.nombre }}</a>
-                </th>
-                <th>
-                    {{ cliente.identificacion }}
-                </th>
-                <th>
-                    {{ cliente.direccion_correspondiencia }}
-                </th>
-                <th>
-                    {{ cliente.telefono }}
-                </th>
-                <th>
-                    {{ cliente.email }}
-                </th>
-                <th>
-                    <a href="{% url 'inventarioapp:actualizar_cliente' cliente.id %}">Actualizar</a>
-                </th>
-                <th>
-                    <a href="{% url 'inventarioapp:eliminar_cliente' cliente.id %}">Eliminar</a>
-                </th>
-            </tr>
+        <tr>
+            <td>
+            <a href="{% url 'inventarioapp:detalle_cliente' cliente.id %}" class="fw-bold link-primary">{{ cliente.nombre }}</a>
+            </td>
+            <td>{{ cliente.identificacion }}</td>
+            <td>{{ cliente.direccion_correspondiencia|default:"–" }}</td>
+            <td>{{ cliente.telefono|default:"–" }}</td>
+            <td>{{ cliente.email|default:"–" }}</td>
+            <td>
+            <a href="{% url 'inventarioapp:actualizar_cliente' cliente.id %}" class="btn btn-sm btn-outline-secondary me-1">Actualizar</a>
+            <a href="{% url 'inventarioapp:eliminar_cliente' cliente.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-center text-muted">No hay clientes registrados.</td>
+        </tr>
         {% endfor %}
+        </tbody>
     </table>
-  {% else %}
-    <p>No hay clientes creados</p>
-  {% endif %}
-  <p><a href="{% url 'inventarioapp:crear_cliente' %}">Crear un Cliente</a></p>
+    </div>
+    <a href="{% url 'inventarioapp:crear_cliente' %}" class="btn btn-success mt-2">Crear un Cliente</a>
 {% endblock %}

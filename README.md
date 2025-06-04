@@ -1,13 +1,15 @@
 # SaaS Inmobiliario
-:construction: Proyecto en construcción :construction:;
-Este proyecto es una App de inventarios para inmobiliarias
+:construction: Proyecto en construcción :construction:
 
-# Checklist SaaS Inmobiliario – MVP & Roadmap
+Este proyecto es una App de inventarios para inmobiliarias, 100% responsive, robusta y alineada a buenas prácticas Django.
 
 ---
 
-## 🟢 Inmediato (MVP Release)
-- [ ] Terminar de revisar todas las **plantillas** para ajustes visuales (web/mobile, tablas, formularios, dashboards, PDFs).
+## **Checklist SaaS Inmobiliario – MVP & Roadmap**
+
+### 🟢 **Inmediato (MVP Release)**
+
+- [X] Terminar de revisar todas las **plantillas** para ajustes visuales (web/mobile, tablas, formularios, dashboards, PDFs).
 - [ ] Agregar **filtros, búsquedas y paginación** a listados (clientes, propiedades, formularios).
 - [ ] **Checklist y flujo de pruebas finales (QA)** para cada funcionalidad antes del release.
 - [ ] **Despliegue:** definir opciones de hosting profesional (ej: Render, Railway, DigitalOcean, PythonAnywhere, etc.) y migración de la base de datos.
@@ -15,7 +17,8 @@ Este proyecto es una App de inventarios para inmobiliarias
 
 ---
 
-## 🟡 Versión 2 y siguientes (Roadmap estratégico)
+### 🟡 **Versión 2 y siguientes (Roadmap estratégico)**
+
 - [ ] Convertir el sistema en **multi-inmobiliaria**: que cada usuario solo acceda a datos de su inmobiliaria.
 - [ ] **Integración con Wasi** (vía API REST para publicar propiedades y sincronizar inventario).
 - [ ] **Agente inmobiliario AI**: sugerencias inteligentes, análisis de captación y precios.
@@ -25,47 +28,62 @@ Este proyecto es una App de inventarios para inmobiliarias
 
 ---
 
+## **Resumen técnico de la aplicación**
 
-
-# Brief Técnico – SaaS Inmobiliario
-
-## Objetivo General
-Sistema SaaS para gestión de inventarios inmobiliarios, con flujos legales, contractuales y de firma digital, adaptable a varias inmobiliarias y con generación de documentación profesional.
+### **Objetivo General**
+Sistema SaaS para gestión de inventarios inmobiliarios, adaptable a varias inmobiliarias, con generación de documentación profesional, flujos contractuales, firmas digitales y todo el ciclo de vida (captación, entrega, seguimiento).
 
 ---
 
-## Modelos Principales
-
-### Propiedad / Cliente / PropiedadCliente
-- Propiedad y Cliente desacoplados.
-- Relación PropiedadCliente, con tipo de relación (dueño, apoderado, arrendatario). Constraint único.
-
-### Formularios
-- **FormularioCaptacion:** Relacionado a PropiedadCliente, con campos fijos y dinámicos, firma digital, tipo (venta/renta), y textos contractuales diferenciados.
-- **FormularioEntrega:** Igual de flexible, con ambientes, ítems, firma, textos contractuales.
-- Ambos permiten generación de PDFs legales y envío por email.
-
-### Inmobiliaria (en `account`)
-- Nombre, logo, textos contractuales por tipo de formulario, firma digitalizada, responsable autorizado (nombre, cédula).
-- Relacionada a cada usuario vía Profile.
+### **Modelos Principales**
+- **Propiedad:** Datos completos del inmueble, incluyendo ubicación GPS.
+- **Cliente:** Personas o empresas con información de contacto y gestión.
+- **PropiedadCliente:** Relación flexible cliente-propiedad con rol (propietario, apoderado, arrendatario), sin duplicidades.
+- **FormularioCaptacion:** Relaciona propiedad/cliente, soporta campos fijos y dinámicos, firma digital, textos contractuales y PDF.
+- **FormularioEntrega:** Similar a captación, pero solo para arrendatarios, incluye ambientes e ítems, firma digital y PDF.
+- **Inmobiliaria:** Branding, firmas, textos contractuales personalizados, datos legales y relación con usuarios.
+- **Ambientes e Ítems:** Modelan el inventario detallado de cada inmueble entregado/recibido.
 
 ---
 
-## Funcionalidad y Flujo
+### **Flujo de la aplicación**
 
-- CRUD de propiedades y clientes, con gestión de relaciones Propiedad-Cliente (tipo obligatorio).
-- Captación y entrega solo permitidas con flujos y permisos coherentes (ej: no se puede entregar sin captación firmada).
-- Formularios con campos dinámicos configurables y firma digital con canvas.
-- PDFs de resumen (captación y entrega) con branding, textos legales, firmas de ambas partes, fechas en letras y números.
-- Documentación contractual clara y lista para auditoría.
+1. **Inicio de sesión y registro** (Bootstrap, mensajes claros, flujo seguro).
+2. **Dashboard**: Cards resumen, gráficos, acciones rápidas.
+3. **Propiedades**: CRUD, asignación de clientes (solo propietario/apoderado para captación, solo arrendatario para entrega).
+4. **Clientes**: CRUD, edición, visuales responsive.
+5. **Captación:**  
+   - Solo disponible si hay propietario/apoderado.
+   - Formulario dinámico.
+   - Firma digital, generación de PDF.
+   - Eliminación solo si no está firmado.
+6. **Entrega:**  
+   - Solo si hay captación firmada y arrendatario.
+   - Detalle de ambientes/ítems.
+   - Firma digital, generación de PDF.
+   - Eliminación solo en estado borrador y por POST.
+7. **Firmas:**  
+   - Uso de SignaturePad en captación y entrega.
+   - Visualización y guardado seguro.
+8. **Mapas:**  
+   - Selección interactiva en formulario de propiedad, usando Leaflet y geolocalización del navegador.
+9. **Mensajes y validaciones:**  
+   - Todos los mensajes globales se muestran en el bloque superior (mensajes Django).
+   - Validaciones limpias, sin errores de integridad visibles para el usuario.
+10. **Visuales:**  
+    - 100% Bootstrap 5: tarjetas, tablas, formularios y tablas responsive.
+    - Consistencia visual y buena experiencia móvil y escritorio.
+11. **Seguridad:**  
+    - Todas las eliminaciones y acciones críticas solo por POST y con confirmación.
+    - Permisos básicos para evitar acciones indebidas.
 
 ---
 
-## Arquitectura
-- Multi-inmobiliaria (escalable), desacoplada por apps.
-- ModelForm para campos fijos + lógica para campos dinámicos.
-- Contexto de inmobiliaria por usuario autenticado.
-- Listo para SaaS y futuras integraciones.
+**¿Siguiente paso?**  
+- Ve marcando lo ya completado y agrega pendientes en el checklist para máxima claridad.
+- Mantén este README actualizado para nuevos miembros o para presentar el avance del proyecto.
+- Revisa el roadmap cada sprint y ajusta prioridades.
 
 ---
 
+¡App lista para pruebas reales y próximo despliegue SaaS! 🚀

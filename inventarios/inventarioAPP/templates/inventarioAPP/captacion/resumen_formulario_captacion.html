@@ -1,15 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="header" style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:15px;">
-      <div>
-          <img src="{{ inmobiliaria.logo.url }}" style="max-height:60px;">
-      </div>
-      <div style="font-size:1.5em;font-weight:bold;">
-          {{ inmobiliaria.nombre }}
-      </div>
+<div class="container" style="max-width: 900px;">
+  <!-- Cabecera responsive -->
+  <div class="row align-items-center border-bottom mb-4 pb-2">
+    <div class="col-6 col-md-3 mb-2 mb-md-0">
+      <img src="{{ inmobiliaria.logo.url }}" class="img-fluid" style="max-height:60px;">
+    </div>
+    <div class="col-6 col-md-9 text-end text-md-end" style="font-size:1.5em;font-weight:bold;">
+      {{ inmobiliaria.nombre }}
+    </div>
   </div>
 
-  <h1>Resumen de Captación</h1>
+  <h1 class="mb-3">Resumen de Captación</h1>
+
   <div>
     <strong>Propiedad:</strong> {{ captacion.propiedad }}<br>
     <strong>Cliente:</strong> {{ captacion.cliente }}<br>
@@ -20,8 +23,8 @@
     <hr>
     <h3>Campos del formulario:</h3>
     {% for seccion, campos in secciones_valores %}
-      <fieldset style="margin-bottom: 1em;">
-        <legend><strong>{{ seccion.nombre }}</strong></legend>
+      <fieldset class="mb-3">
+        <legend class="fs-5 fw-bold">{{ seccion.nombre }}</legend>
         <ul>
           {% for nombre, valor in campos %}
             <li><strong>{{ nombre }}:</strong> {{ valor|default:"–" }}</li>
@@ -31,7 +34,7 @@
     {% endfor %}
   </div>
 
-  <div class="contractual" style="margin:28px 0 15px 0; padding:18px; background:#f9f9f9; border:1.5px solid #ccc; font-size:1.1em;">
+  <div class="contractual my-4 p-3 bg-light border rounded" style="font-size:1.1em;">
       <strong>Condiciones contractuales:</strong><br>
       {% if captacion.tipo_captacion == 'venta' %}
           {{ inmobiliaria.texto_contractual_captacion_venta|linebreaksbr }}
@@ -42,48 +45,44 @@
       {% endif %}
   </div>
 
-  {% if not captacion.is_firmado %}
-    <h3>Firma digital</h3>
-    <form id="form-firma" method="post">
-      {% csrf_token %}
-      <canvas id="firma" width="400" height="200" style="border:1px solid #000;"></canvas>
-      <input type="hidden" id="firma_base64" name="firma_base64">
+  <!-- Firmas: ahora responsive, en columna en móvil y en fila en escritorio -->
+  <div class="row mt-4 g-4">
+    <div class="col-12 col-md-6 text-center">
+      <strong>Firma del cliente:</strong><br>
+      {% if not captacion.is_firmado %}
+        <h3 class="fs-6 mt-3">Firma digital</h3>
+        <form id="form-firma" method="post">
+          {% csrf_token %}
+          <canvas id="firma" width="400" height="200" style="border:1px solid #000; max-width:100%;"></canvas>
+          <input type="hidden" id="firma_base64" name="firma_base64">
+          <br>
+          <button type="button" onclick="limpiarFirma()" class="btn btn-secondary btn-sm mt-2">Limpiar</button>
+          <button type="button" onclick="guardarFirma()" class="btn btn-success btn-sm mt-2">Firmar y Guardar</button>
+        </form>
+      {% else %}
+        <img src="{{ captacion.firma_cliente.url }}" alt="Firma" style="border:1px solid #000; max-width:100%; max-height:200px;"><br/>
+        <form method="get" action="{% url 'inventarioapp:enviar_formulario_captacion' captacion.id %}">
+          <button type="submit" class="btn btn-primary mt-2">Enviar por correo</button>
+        </form>
+      {% endif %}
       <br>
-      <button type="button" onclick="limpiarFirma()">Limpiar</button>
-      <button type="button" onclick="guardarFirma()">Firmar y Guardar</button>
-    </form>
-  {% else %}
-    <h3>Captación firmada el {{ captacion.fecha_firma }}</h3>
-    <img src="{{ captacion.firma_cliente.url }}" alt="Firma" style="border:1px solid #000; max-width:400px;"><br/>
-    <form method="get" action="{% url 'inventarioapp:enviar_formulario_captacion' captacion.id %}">
-      <button type="submit" class="btn btn-primary">Enviar por correo</button>
-    </form>
-  {% endif %}
-
-  <div class="firma-area" style="margin-top:40px;display:flex;justify-content:space-between;">
-      <div style="text-align:center;">
-          <strong>Firma del cliente:</strong><br>
-          {% if captacion.firma_cliente %}
-              <img src="{{ captacion.firma_cliente.url }}" style="max-width:220px; border:1px solid #aaa;"><br>
-          {% else %}
-              (Sin firma)
-          {% endif %}
-          <br>
-          <strong>Fecha de firma:</strong>
-          {{ captacion.fecha_firma|date:"d/m/Y H:i" }}
-      </div>
-      <div style="text-align:center;">
-          <strong>Firma de la inmobiliaria:</strong><br>
-          {% if inmobiliaria.firma_autorizada %}
-              <img src="{{ inmobiliaria.firma_autorizada.url }}" style="max-width:220px; border:1px solid #aaa;"><br>
-          {% else %}
-              (Sin firma cargada)
-          {% endif %}
-          <br>
-          <strong>Nombre:</strong> {{ inmobiliaria.nombre_firma_autorizada }}<br>
-          <strong>Cédula:</strong> {{ inmobiliaria.cedula_firma_autorizada }}
-      </div>
+      <strong>Fecha de firma:</strong>
+      {{ captacion.fecha_firma|date:"d/m/Y H:i" }}
+    </div>
+    <div class="col-12 col-md-6 text-center">
+      <strong>Firma de la inmobiliaria:</strong><br>
+      {% if inmobiliaria.firma_autorizada %}
+          <img src="{{ inmobiliaria.firma_autorizada.url }}" style="max-width:220px; border:1px solid #aaa; max-width:100%;"><br>
+      {% else %}
+          (Sin firma cargada)
+      {% endif %}
+      <br>
+      <strong>Nombre:</strong> {{ inmobiliaria.nombre_firma_autorizada }}<br>
+      <strong>Cédula:</strong> {{ inmobiliaria.cedula_firma_autorizada }}
+    </div>
   </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
