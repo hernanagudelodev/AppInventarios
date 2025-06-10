@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='detallecaptacion',
             name='formulario_captacion',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.formulariocaptacion'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.formulariocaptacion'),
         ),
     ]
