@@ -45,7 +45,7 @@ class Migration(migrations.Migration):
                 ('matricula_inmobiliaria', models.CharField(blank=True, max_length=200, null=True)),
                 ('direccion', models.CharField(max_length=200)),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('ciudad', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ciudad_propiedad', to='inventarioAPP.ciudad')),
+                ('ciudad', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ciudad_propiedad', to='inventarioapp.ciudad')),
             ],
             options={
                 'ordering': ['-created'],
@@ -56,19 +56,19 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('relacion', models.CharField(choices=[('PR', 'Propietario'), ('AP', 'Apoderado'), ('AR', 'Arrendatario')], default='PR', max_length=2)),
-                ('cliente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.cliente')),
-                ('propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.propiedad')),
+                ('cliente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.cliente')),
+                ('propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.propiedad')),
             ],
         ),
         migrations.AddField(
             model_name='propiedad',
             name='clientes',
-            field=models.ManyToManyField(related_name='clientes_propiedad', through='inventarioAPP.PropiedadCliente', to='inventarioAPP.cliente'),
+            field=models.ManyToManyField(related_name='clientes_propiedad', through='inventarioapp.PropiedadCliente', to='inventarioapp.cliente'),
         ),
         migrations.AddField(
             model_name='propiedad',
             name='tipo_propiedad',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='propiedad_tipo', to='inventarioAPP.tipopropiedad'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='propiedad_tipo', to='inventarioapp.tipopropiedad'),
         ),
         migrations.AddIndex(
             model_name='propiedad',

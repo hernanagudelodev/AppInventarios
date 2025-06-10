@@ -26,17 +26,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='altdetallesexteriores',
             name='formulario_captacion',
-            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.formulariocaptacion'),
+            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.formulariocaptacion'),
         ),
         migrations.AddField(
             model_name='altdetallesgenerales',
             name='formulario_captacion',
-            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.formulariocaptacion'),
+            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.formulariocaptacion'),
         ),
         migrations.AddField(
             model_name='altdetallesinteriores',
             name='formulario_captacion',
-            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.formulariocaptacion'),
+            field=models.OneToOneField(default=0, on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.formulariocaptacion'),
         ),
         migrations.DeleteModel(
             name='AltFormularioCaptacion',

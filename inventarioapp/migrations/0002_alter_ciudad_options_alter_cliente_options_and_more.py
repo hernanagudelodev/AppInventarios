@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('tipo_captacion', models.CharField(choices=[('RE', 'Renta'), ('VE', 'Venta'), ('AM', 'Ambos')], max_length=2)),
                 ('valor_venta', models.DecimalField(decimal_places=2, max_digits=13)),
                 ('valor_renta', models.DecimalField(decimal_places=2, max_digits=13)),
-                ('propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.propiedad')),
+                ('propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.propiedad')),
             ],
         ),
     ]

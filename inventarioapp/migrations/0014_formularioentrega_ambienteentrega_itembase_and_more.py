@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('observaciones_generales', models.TextField(blank=True, null=True)),
                 ('firma_cliente', models.ImageField(blank=True, null=True, upload_to='firmas/')),
                 ('creado', models.DateTimeField(auto_now_add=True)),
-                ('propiedad_cliente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.propiedadcliente')),
+                ('propiedad_cliente', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.propiedadcliente')),
             ],
             options={
                 'verbose_name': 'Formulario de Entrega',
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('tipo_ambiente', models.CharField(choices=[('ALCOBA', 'Alcoba'), ('BAÑO', 'Baño'), ('COCINA', 'Cocina'), ('SALA', 'Sala'), ('COMEDOR', 'Comedor'), ('ZONA_ROPA', 'Zona de Ropa'), ('BALCON', 'Balcón'), ('OTRO', 'Otro')], max_length=20)),
                 ('numero_ambiente', models.PositiveIntegerField(blank=True, null=True)),
                 ('nombre_personalizado', models.CharField(blank=True, max_length=100, null=True)),
-                ('formulario_entrega', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ambientes', to='inventarioAPP.formularioentrega')),
+                ('formulario_entrega', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ambientes', to='inventarioapp.formularioentrega')),
             ],
         ),
         migrations.CreateModel(
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 ('material', models.CharField(blank=True, max_length=100, null=True)),
                 ('observaciones', models.TextField(blank=True, null=True)),
                 ('es_personalizado', models.BooleanField(default=False)),
-                ('ambiente_entrega', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='inventarioAPP.ambienteentrega')),
+                ('ambiente_entrega', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='items', to='inventarioapp.ambienteentrega')),
             ],
         ),
     ]

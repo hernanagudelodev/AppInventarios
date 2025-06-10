@@ -17,6 +17,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='detallepropiedad',
             name='clase_propiedad',
-            field=models.ManyToManyField(blank=True, to='inventarioAPP.tipopropiedad'),
+            field=models.ManyToManyField(blank=True, to='inventarioapp.tipopropiedad'),
         ),
     ]

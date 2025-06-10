@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('descripcion', models.CharField(blank=True, max_length=200, null=True)),
                 ('tipo_campo', models.CharField(choices=[('NU', 'Número'), ('TE', 'Texto'), ('SN', 'Si/No')], max_length=2)),
                 ('tipo_detalle', models.CharField(choices=[('GN', 'General'), ('IN', 'Interior'), ('EX', 'Exterior')], max_length=2)),
-                ('clase_propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.tipopropiedad')),
+                ('clase_propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.tipopropiedad')),
             ],
             options={
                 'verbose_name': 'Detalle de Propiedad',

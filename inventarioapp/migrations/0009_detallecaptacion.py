@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('detalle', models.CharField(blank=True, max_length=200, null=True)),
-                ('detalle_propiedad', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='inventarioAPP.detallepropiedad')),
-                ('formulario_captacion', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='inventarioAPP.formulariocaptacion')),
+                ('detalle_propiedad', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='inventarioapp.detallepropiedad')),
+                ('formulario_captacion', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='inventarioapp.formulariocaptacion')),
             ],
         ),
     ]

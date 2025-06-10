@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('tipo_captacion', models.CharField(blank=True, choices=[('RE', 'Renta'), ('VE', 'Venta'), ('AM', 'Ambos')], max_length=2, null=True)),
                 ('valor_venta', models.DecimalField(blank=True, decimal_places=2, max_digits=13, null=True)),
                 ('valor_renta', models.DecimalField(blank=True, decimal_places=2, max_digits=13, null=True)),
-                ('propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.propiedad')),
+                ('propiedad', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.propiedad')),
             ],
             options={
                 'verbose_name': 'Formulario de Captación',
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('alarma', models.CharField(blank=True, choices=[('SI', 'Si'), ('NO', 'No')], max_length=2, null=True)),
                 ('aire_acondicionado', models.CharField(blank=True, choices=[('SI', 'Si'), ('NO', 'No')], max_length=2, null=True)),
                 ('otros_u_observaciones', models.TextField(blank=True, null=True)),
-                ('alt_formulario_captacion', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.altformulariocaptacion')),
+                ('alt_formulario_captacion', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.altformulariocaptacion')),
             ],
             options={
                 'verbose_name': 'Detalles Interiores Formulario de Captación',
@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
                 ('area_privada', models.IntegerField(blank=True, null=True, verbose_name='Área Privada')),
                 ('area', models.IntegerField(blank=True, null=True, verbose_name='Área')),
                 ('estrato', models.IntegerField(blank=True, null=True, validators=[django.core.validators.MaxValueValidator(10), django.core.validators.MinValueValidator(0)])),
-                ('alt_formulario_captacion', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.altformulariocaptacion')),
+                ('alt_formulario_captacion', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.altformulariocaptacion')),
             ],
             options={
                 'verbose_name': 'Detalles Generales Formulario de Captación',
@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
                 ('piscina', models.CharField(blank=True, choices=[('SI', 'Si'), ('NO', 'No')], max_length=2, null=True)),
                 ('ascensor', models.CharField(blank=True, choices=[('SI', 'Si'), ('NO', 'No')], max_length=2, null=True)),
                 ('conjunto_cerrado', models.CharField(blank=True, choices=[('SI', 'Si'), ('NO', 'No')], max_length=2, null=True)),
-                ('alt_formulario_captacion', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='inventarioAPP.altformulariocaptacion')),
+                ('alt_formulario_captacion', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='inventarioapp.altformulariocaptacion')),
             ],
             options={
                 'verbose_name': 'Detalles Exteriores Formulario de Captación',
