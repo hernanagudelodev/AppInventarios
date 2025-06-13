@@ -40,10 +40,6 @@ def register(request):
             # Establece la contraseña elegida
             new_user.set_password(user_form.cleaned_data['password'])
 
-            # Marca el usuario como superusuario y staff
-            new_user.is_superuser = True #esto es solo para crear un usuario administrador
-            new_user.is_staff = True
-
             # Guarda el usuario
             new_user.save()
 
