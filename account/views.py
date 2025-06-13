@@ -35,22 +35,28 @@ def register(request):
     if request.method == 'POST':
         user_form = UserRegistrationForm(request.POST)
         if user_form.is_valid():
-            # Create a new user object but avoid saving it yet
+            # Crea un nuevo objeto usuario, pero aún no lo guarda
             new_user = user_form.save(commit=False)
-            # Set the chosen password
+            # Establece la contraseña elegida
             new_user.set_password(user_form.cleaned_data['password'])
-            # save the user object
+
+            # Marca el usuario como superusuario y staff
+            new_user.is_superuser = True #esto es solo para crear un usuario administrador
+            new_user.is_staff = True
+
+            # Guarda el usuario
             new_user.save()
-            # Create the user profile
+
+            # Crea el perfil asociado
             Profile.objects.create(user=new_user)
             return render(request,
                           'account/register_done.html',
-                          {'new_user':new_user})
+                          {'new_user': new_user})
     else:
         user_form = UserRegistrationForm()
     return render(request,
-                'account/register.html',
-                {'user_form':user_form})
+                  'account/register.html',
+                  {'user_form': user_form})
 
 @login_required
 def edit(request):
