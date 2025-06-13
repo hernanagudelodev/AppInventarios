@@ -13,6 +13,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
     raise Exception("SECRET_KEY no está definida en el entorno. Por seguridad, agrégala en tu archivo .env o en Railway.")
 
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+
 ENVIRONMENT = os.environ.get('ENVIRONMENT', 'development')
 
 DEBUG = os.environ.get('DEBUG', 'True' if ENVIRONMENT == 'development' else 'False') == 'True'
