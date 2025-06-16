@@ -1,4 +1,5 @@
 # Archivos sensibles y base de datos local
 .env
 db.sqlite3
-static/
+staticfiles/
+media/
