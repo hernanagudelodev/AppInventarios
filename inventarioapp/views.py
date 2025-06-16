@@ -20,7 +20,7 @@ from django.conf import settings
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 # os.environ['WEASYPRINT_DLL_DIRECTORIES'] = r'C:\Program Files\GTK3-Runtime Win64\bin'
-# from weasyprint import HTML
+from weasyprint import HTML
 from io import BytesIO
 from django.utils import timezone
 from django.core.validators import validate_email
@@ -534,7 +534,7 @@ def enviar_formulario_pdf(request, entrega_id):
     })
 
     pdf_file = BytesIO()
-    # HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
+    HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
 
     email = EmailMessage(
         'Formulario de Entrega',
@@ -565,7 +565,7 @@ def ver_pdf_formulario_entrega(request, entrega_id):
     })
 
     pdf_file = BytesIO()
-    # HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
+    HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
 
     response = HttpResponse(pdf_file.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'inline; filename=formulario_entrega_{entrega_id}.pdf'
@@ -849,7 +849,7 @@ def enviar_formulario_captacion(request, captacion_id):
             'anio_letras': anio_letras,
         })
         pdf_file = BytesIO()
-        # HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
+        HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf(target=pdf_file)
 
         email = EmailMessage(
             'Formulario de Captación Firmado',
