@@ -20,9 +20,24 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el resto del código
+# Copia todo el código de la app
 COPY . .
 
+# -----------------------------
+# Variables necesarias en build
+# -----------------------------
+# 1) Decláralas como argumentos:
+ARG SECRET_KEY
+ARG DATABASE_URL
+
+# 2) Expónlas como variables de entorno,
+#    con un fallback si vienen vacías:
+ENV SECRET_KEY=${SECRET_KEY:-build-time-key}
+ENV DATABASE_URL=${DATABASE_URL:-sqlite:///build.db}
+
+# -----------------------------
+# Recolecta los estáticos
+# -----------------------------
 RUN python manage.py collectstatic --noinput
 
 # Arranca Gunicorn (Railway expone la variable $PORT)
