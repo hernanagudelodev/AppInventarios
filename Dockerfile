@@ -24,4 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Arranca Gunicorn (Railway expone la variable $PORT)
-CMD ["gunicorn", "inventarios.wsgi:application", "--bind", "0.0.0.0:${PORT}"]
+CMD ["sh", "-c", "gunicorn inventarios.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+
