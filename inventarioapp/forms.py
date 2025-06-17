@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import modelformset_factory
+from django.forms import inlineformset_factory
 from .models import *
 from django.forms.formsets import Form, BaseFormSet, formset_factory, ValidationError
 from .wasi_api import obtener_paises, obtener_regiones, obtener_ciudades, obtener_localidades, obtener_zonas
@@ -104,10 +104,12 @@ class AmbienteEntregaForm(forms.ModelForm):
         fields = ['tipo_ambiente', 'numero_ambiente', 'nombre_personalizado']
 
 
-ItemEntregaFormSet = modelformset_factory(
-    ItemEntrega,
+ItemEntregaFormSet = inlineformset_factory(
+    parent_model=AmbienteEntrega,
+    model=ItemEntrega,
     fields=['nombre_item', 'estado', 'cantidad', 'material', 'observaciones'],
-    extra=0
+    extra=0,          # fila vacía para ítem nuevo
+    can_delete=False  # seguimos usando tu botón "Eliminar"
 )
 
 
