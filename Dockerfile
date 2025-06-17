@@ -41,5 +41,8 @@ ENV DATABASE_URL=${DATABASE_URL:-sqlite:///build.db}
 RUN python manage.py collectstatic --noinput
 
 # Arranca Gunicorn (Railway expone la variable $PORT)
-CMD ["sh", "-c", "gunicorn inventarios.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+CMD ["sh", "-c", "gunicorn inventarios.wsgi:application \
+    --bind 0.0.0.0:${PORT:-8000} \
+    --workers 3 \
+    --timeout 120"]
 
