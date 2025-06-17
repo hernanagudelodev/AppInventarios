@@ -453,20 +453,56 @@ Esta vista permite modificar los items de un ambiente de un formulario de entreg
 @login_required
 def editar_items_ambiente(request, ambiente_id):
     ambiente = get_object_or_404(AmbienteEntrega, id=ambiente_id)
-    formset = ItemEntregaFormSet(queryset=ambiente.items.all())
 
     if request.method == 'POST':
-        formset = ItemEntregaFormSet(request.POST, queryset=ambiente.items.all())
+        import pprint
+        pprint.pp(request.POST)
+        formset = ItemEntregaFormSet(request.POST, instance=ambiente)
         if formset.is_valid():
-            formset.save()
-            return redirect('inventarioapp:agregar_ambiente', entrega_id=ambiente.formulario_entrega.id)
-        else:
-            print(formset.errors)
+            print("Cambios detectados en formularios:",[f.changed_data for f in formset.forms])
+            formset.save()          # guarda nuevos y modifica existentes
+            return redirect(
+                'inventarioapp:agregar_ambiente',
+                entrega_id=ambiente.formulario_entrega.id
+            )
+    else:
+        formset = ItemEntregaFormSet(instance=ambiente)
 
     return render(request, 'inventarioapp/entrega/editar_items_ambiente.html', {
         'ambiente': ambiente,
         'formset': formset,
     })
+# def editar_items_ambiente(request, ambiente_id):
+#     ambiente = get_object_or_404(AmbienteEntrega, id=ambiente_id)
+#     formset = ItemEntregaFormSet(queryset=ambiente.items.all())
+
+#     if request.method == 'POST':
+#         formset = ItemEntregaFormSet(request.POST, queryset=ambiente.items.all())
+#         if formset.is_valid():
+#             # Guarda sin commit para asignar FK
+#             items = formset.save(commit=False)
+
+#             # Asigna el ambiente a cada nuevo ítem
+#             for item in items:
+#                 if item.pk is None:       # solo los nuevos
+#                     item.ambiente = ambiente
+#                 item.save()
+
+#             # Borra los que hayan sido marcados para eliminar (por si acaso)
+#             for obj in formset.deleted_objects:
+#                 obj.delete()
+
+#             return redirect(
+#                 'inventarioapp:agregar_ambiente',
+#                 entrega_id=ambiente.formulario_entrega.id
+#             )
+#         else:
+#             print(formset.errors)
+
+#     return render(request, 'inventarioapp/entrega/editar_items_ambiente.html', {
+#         'ambiente': ambiente,
+#         'formset': formset,
+#     })
 
 '''
 Esta vista permite ver el resumen de un formulario de entrega y firmarlo
