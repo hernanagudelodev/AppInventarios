@@ -1,89 +1,88 @@
-# SaaS Inmobiliario
-:construction: Proyecto en construcción :construction:
+# 🏠 AppInventarios – Real Estate Inventory Management SaaS
 
-Este proyecto es una App de inventarios para inmobiliarias, 100% responsive, robusta y alineada a buenas prácticas Django.
+**Status:** Production Beta – Running on [Railway](https://railway.app/) with one active client, stable and bug-free so far.
 
----
+## 📌 Overview
+**AppInventarios** is a **SaaS web application** for real estate companies to manage property inventories for both acquisition (*captación*) and delivery (*entrega*) processes.  
+Built with **Django 5.1.5**, **Python 3.13.6**, **PostgreSQL**, and deployed in a **Dockerized** environment on Railway with automated CI/CD.
 
-## **Checklist SaaS Inmobiliario – MVP & Roadmap**
-
-### 🟢 **Inmediato (MVP Release)**
-
-- [X] Terminar de revisar todas las **plantillas** para ajustes visuales (web/mobile, tablas, formularios, dashboards, PDFs).
-- [X] Agregar **filtros, búsquedas y paginación** a listados (clientes, propiedades, formularios).
-- [X] **Checklist y flujo de pruebas finales (QA)** para cada funcionalidad antes del release.
-- [ ] **Despliegue:** definir opciones de hosting profesional (ej: Render, Railway, DigitalOcean, PythonAnywhere, etc.) y migración de la base de datos.
-- [ ] **Pruebas de usuario final** (validación real con usuarios de la inmobiliaria y feedback).
+Unlike static inventory systems, **AppInventarios** offers a **fully dynamic form configuration**: each agency can define what information to collect, how many environments a property has, and the items per environment — all with **digital signatures** and PDF generation.
 
 ---
 
-### 🟡 **Versión 2 y siguientes (Roadmap estratégico)**
+## 🚀 Key Features
+- **Dynamic Form Builder**  
+  - Agencies define the fields for both acquisition and delivery forms.  
+  - Delivery form supports adding unlimited environments and items.
 
-- [ ] Convertir el sistema en **multi-inmobiliaria**: que cada usuario solo acceda a datos de su inmobiliaria.
-- [ ] **Integración con Wasi** (vía API REST para publicar propiedades y sincronizar inventario).
-- [ ] **Agente inmobiliario AI**: sugerencias inteligentes, análisis de captación y precios.
-- [ ] Afinar o ajustar **visuales avanzados** para dispositivos, navegadores, branding único, customización de colores.
-- [ ] **Control de permisos por roles** (administrador, agente, asistente, etc.).
-- [ ] **Landing page** comercial para captar nuevos clientes fuera de la inmobiliaria actual.
+- **Full Inventory Lifecycle**  
+  - **Acquisition Inventory** – Property details from owner/apoderado with digital signature.  
+  - **Delivery Inventory** – For rental or sale, with configurable environments and items, digital signature, and PDF export.
 
----
+- **Digital Signatures**  
+  - Built-in canvas signature capture for both processes.
 
-## **Resumen técnico de la aplicación**
+- **Responsive Design**  
+  - 100% Bootstrap 5 for consistent web & mobile experience.
 
-### **Objetivo General**
-Sistema SaaS para gestión de inventarios inmobiliarios, adaptable a varias inmobiliarias, con generación de documentación profesional, flujos contractuales, firmas digitales y todo el ciclo de vida (captación, entrega, seguimiento).
+- **PDF Document Generation**  
+  - Professional templates for signed inventories.
 
----
-
-### **Modelos Principales**
-- **Propiedad:** Datos completos del inmueble, incluyendo ubicación GPS.
-- **Cliente:** Personas o empresas con información de contacto y gestión.
-- **PropiedadCliente:** Relación flexible cliente-propiedad con rol (propietario, apoderado, arrendatario), sin duplicidades.
-- **FormularioCaptacion:** Relaciona propiedad/cliente, soporta campos fijos y dinámicos, firma digital, textos contractuales y PDF.
-- **FormularioEntrega:** Similar a captación, pero solo para arrendatarios, incluye ambientes e ítems, firma digital y PDF.
-- **Inmobiliaria:** Branding, firmas, textos contractuales personalizados, datos legales y relación con usuarios.
-- **Ambientes e Ítems:** Modelan el inventario detallado de cada inmueble entregado/recibido.
+- **Secure Workflow**  
+  - All critical actions require POST requests and confirmation prompts.
 
 ---
 
-### **Flujo de la aplicación**
-
-1. **Inicio de sesión y registro** (Bootstrap, mensajes claros, flujo seguro).
-2. **Dashboard**: Cards resumen, gráficos, acciones rápidas.
-3. **Propiedades**: CRUD, asignación de clientes (solo propietario/apoderado para captación, solo arrendatario para entrega).
-4. **Clientes**: CRUD, edición, visuales responsive.
-5. **Captación:**  
-   - Solo disponible si hay propietario/apoderado.
-   - Formulario dinámico.
-   - Firma digital, generación de PDF.
-   - Eliminación solo si no está firmado.
-6. **Entrega:**  
-   - Solo si hay captación firmada y arrendatario.
-   - Detalle de ambientes/ítems.
-   - Firma digital, generación de PDF.
-   - Eliminación solo en estado borrador y por POST.
-7. **Firmas:**  
-   - Uso de SignaturePad en captación y entrega.
-   - Visualización y guardado seguro.
-8. **Mapas:**  
-   - Selección interactiva en formulario de propiedad, usando Leaflet y geolocalización del navegador.
-9. **Mensajes y validaciones:**  
-   - Todos los mensajes globales se muestran en el bloque superior (mensajes Django).
-   - Validaciones limpias, sin errores de integridad visibles para el usuario.
-10. **Visuales:**  
-    - 100% Bootstrap 5: tarjetas, tablas, formularios y tablas responsive.
-    - Consistencia visual y buena experiencia móvil y escritorio.
-11. **Seguridad:**  
-    - Todas las eliminaciones y acciones críticas solo por POST y con confirmación.
-    - Permisos básicos para evitar acciones indebidas.
+## 🛠 Tech Stack
+- **Backend:** Python 3.13.6, Django 5.1.5
+- **Database:** PostgreSQL
+- **Containerization:** Docker
+- **Deployment:** Railway (CI/CD pipeline)
+- **Frontend:** HTML, CSS (Bootstrap 5), JavaScript
+- **Maps:** Leaflet.js with browser geolocation
+- **PDF & Signatures:** SignaturePad, Django templates
 
 ---
 
-**¿Siguiente paso?**  
-- Ve marcando lo ya completado y agrega pendientes en el checklist para máxima claridad.
-- Mantén este README actualizado para nuevos miembros o para presentar el avance del proyecto.
-- Revisa el roadmap cada sprint y ajusta prioridades.
+## 📂 Main Models
+- **Property** – Full property details, including GPS location.
+- **Client** – Contact and management details.
+- **PropertyClient** – Flexible relationship between client and property (owner, proxy, tenant).
+- **AcquisitionForm** – Customizable, dynamic form with signature and PDF.
+- **DeliveryForm** – Dynamic form for tenants, supports environments and items, signature, and PDF.
+- **Agency** – Branding, legal data, and user relationships.
+- **Environment / Item** – Detailed inventory structure per property.
 
 ---
 
-¡App lista para pruebas reales y próximo despliegue SaaS! 🚀
+## 📸 Screenshots
+*(To be added)*  
+Suggested: Dashboard view, form creation, signature capture, PDF output.
+
+---
+
+## ⚙️ Installation
+```bash
+# 1. Clone the repository
+git clone https://github.com/hernanagudelodev/appInventarios.git
+cd appInventarios
+
+# 2. Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Set up environment variables
+# Example: create a .env file and configure DATABASE_URL, SECRET_KEY, DEBUG, etc.
+
+# 5. Run migrations
+python manage.py migrate
+
+# 6. Create a superuser
+python manage.py createsuperuser
+
+# 7. Start the development server
+python manage.py runserver
