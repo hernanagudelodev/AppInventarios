@@ -86,3 +86,17 @@ python manage.py createsuperuser
 
 # 7. Start the development server
 python manage.py runserver
+
+```
+
+---
+
+## 📜 License
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📬 Contact
+**Hernán Agudelo López**  
+📧 hernanagudelodev@gmail.com  
+🔗 [LinkedIn](https://www.linkedin.com/in/hernan-agudelo) | [GitHub](https://github.com/hernanagudelodev)
